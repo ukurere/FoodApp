@@ -3,6 +3,7 @@ using System.Xml.Linq;
 
 public class Dish : IAggregateRoot
 {
+    public int DishId { get; set; }
     public string Name { get; set; }
     public int PreparationTimeMinutes { get; set; }
     public string Type { get; set; }

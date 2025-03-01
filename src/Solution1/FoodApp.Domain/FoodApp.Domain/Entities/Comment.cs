@@ -2,6 +2,7 @@
 
 public class Comment : Entity
 {
+    public int CommentId { get; set; }
     public int UserID { get; set; }
     public User User { get; set; }
 
