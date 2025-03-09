@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FoodApp.Domain.Entities;
 using FoodApp.Infrastructure;
+using FoodApp.Domain.Entities;
 
 namespace FoodAppMVC.WebMVC.Controllers
 {
@@ -17,33 +17,48 @@ namespace FoodAppMVC.WebMVC.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Dish>>> GetDishes()
+        public async Task<IActionResult> GetAllDishes()
         {
-            return await _context.Dishes.ToListAsync();
+            var dishes = await _context.Dishes.ToListAsync();
+            return Ok(dishes);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Dish>> GetDish(int id)
+        public async Task<IActionResult> GetDishById(int id)
         {
             var dish = await _context.Dishes.FindAsync(id);
             if (dish == null) return NotFound();
-            return dish;
+
+            return Ok(dish);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Dish>> CreateDish(Dish dish)
+        public async Task<IActionResult> CreateDish([FromBody] Dish dish)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             _context.Dishes.Add(dish);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetDish), new { id = dish.DishId }, dish);
+            return CreatedAtAction(nameof(GetDishById), new { id = dish.DishId }, dish);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDish(int id, Dish dish)
+        public async Task<IActionResult> UpdateDish(int id, [FromBody] Dish dish)
         {
             if (id != dish.DishId) return BadRequest();
+
             _context.Entry(dish).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!DishExists(id)) return NotFound();
+                throw;
+            }
+
             return NoContent();
         }
 
@@ -52,9 +67,16 @@ namespace FoodAppMVC.WebMVC.Controllers
         {
             var dish = await _context.Dishes.FindAsync(id);
             if (dish == null) return NotFound();
+
             _context.Dishes.Remove(dish);
             await _context.SaveChangesAsync();
+
             return NoContent();
+        }
+
+        private bool DishExists(int id)
+        {
+            return _context.Dishes.Any(e => e.DishId == id);
         }
     }
 }

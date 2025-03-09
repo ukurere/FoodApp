@@ -17,33 +17,49 @@ namespace FoodAppMVC.WebMVC.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Ingredient>>> GetIngredients()
+        public async Task<IActionResult> GetAllIngredients()
         {
-            return await _context.Ingredients.ToListAsync();
+            var ingredients = await _context.Ingredients.ToListAsync();
+            return Ok(ingredients);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Ingredient>> GetIngredient(int id)
+        public async Task<IActionResult> GetIngredientById(int id)
         {
             var ingredient = await _context.Ingredients.FindAsync(id);
             if (ingredient == null) return NotFound();
-            return ingredient;
+
+            return Ok(ingredient);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Ingredient>> CreateIngredient(Ingredient ingredient)
+        public async Task<IActionResult> CreateIngredient([FromBody] Ingredient ingredient)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             _context.Ingredients.Add(ingredient);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetIngredient), new { id = ingredient.IngredientId }, ingredient);
+
+            return CreatedAtAction(nameof(GetIngredientById), new { id = ingredient.IngredientId }, ingredient);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateIngredient(int id, Ingredient ingredient)
+        public async Task<IActionResult> UpdateIngredient(int id, [FromBody] Ingredient ingredient)
         {
             if (id != ingredient.IngredientId) return BadRequest();
+
             _context.Entry(ingredient).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!IngredientExists(id)) return NotFound();
+                throw;
+            }
+
             return NoContent();
         }
 
@@ -52,9 +68,16 @@ namespace FoodAppMVC.WebMVC.Controllers
         {
             var ingredient = await _context.Ingredients.FindAsync(id);
             if (ingredient == null) return NotFound();
+
             _context.Ingredients.Remove(ingredient);
             await _context.SaveChangesAsync();
+
             return NoContent();
+        }
+
+        private bool IngredientExists(int id)
+        {
+            return _context.Ingredients.Any(e => e.IngredientId == id);
         }
     }
 }
