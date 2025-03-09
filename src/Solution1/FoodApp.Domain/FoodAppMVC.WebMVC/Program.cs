@@ -7,13 +7,13 @@ using FoodApp.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Логування шляху до конфігурації
+
 Console.WriteLine($"🔍 Trying to load config: {builder.Environment.ContentRootPath}");
 
 var configuration = builder.Configuration;
 var connectionString = configuration.GetConnectionString("FoodAppContext");
 
-// ✅ Переконайся, що connectionString не null
+
 if (string.IsNullOrEmpty(connectionString))
 {
     Console.WriteLine("❌ Connection string is missing!");
@@ -21,7 +21,7 @@ if (string.IsNullOrEmpty(connectionString))
 }
 Console.WriteLine($"🔗 Connection string: {connectionString}");
 
-// ✅ Прив'язка до конкретного URL (порт можна змінити)
+
 builder.WebHost.UseUrls("http://localhost:5255");
 
 builder.Services.AddDbContext<FoodAppContext>(options =>
@@ -33,20 +33,18 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// ✅ Включаємо Swagger тільки в Development
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// ✅ Редирект HTTP -> HTTPS
+
 app.UseHttpsRedirection();
 
-// ✅ Використання статичних файлів
 app.UseStaticFiles();
 
-// ✅ Налаштування маршрутизації
 app.UseRouting();
 app.UseAuthorization();
 
@@ -57,7 +55,6 @@ app.UseEndpoints(endpoints =>
         pattern: "{controller=Dish}/{action=Index}/{id?}");
 });
 
-// ✅ Автоматичне застосування міграцій
 Console.WriteLine("🚀 Applying migrations...");
 using (var scope = app.Services.CreateScope())
 {
@@ -66,5 +63,4 @@ using (var scope = app.Services.CreateScope())
 }
 Console.WriteLine("✅ Migrations applied successfully.");
 
-// ✅ Запуск сервера
 app.Run();
