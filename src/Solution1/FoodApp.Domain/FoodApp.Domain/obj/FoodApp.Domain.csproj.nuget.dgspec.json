@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\Нова папка\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\FoodApp.Domain.csproj": {}
+    "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\NewFolder\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\FoodApp.Domain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\Нова папка\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\FoodApp.Domain.csproj": {
+    "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\NewFolder\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\FoodApp.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\Нова папка\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\FoodApp.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\NewFolder\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\FoodApp.Domain.csproj",
         "projectName": "FoodApp.Domain",
-        "projectPath": "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\Нова папка\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\FoodApp.Domain.csproj",
+        "projectPath": "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\NewFolder\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\FoodApp.Domain.csproj",
         "packagesPath": "C:\\Users\\Ukurere\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\Нова папка\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\obj\\",
+        "outputPath": "C:\\Users\\Ukurere\\Documents\\University-2\\ISTP\\NewFolder\\src\\Solution1\\FoodApp.Domain\\FoodApp.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -51,6 +51,30 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[7.3.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

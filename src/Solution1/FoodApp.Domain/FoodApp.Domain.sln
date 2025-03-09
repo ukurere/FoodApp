@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35219.272
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoodApp.Domain", "FoodApp.Domain\FoodApp.Domain.csproj", "{2C0A229D-FD8C-4926-80A6-D354E8F433E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodApp.Infrastructure", "FoodApp.Infrastracture\FoodApp.Infrastructure.csproj", "{60AEBACA-C196-4F84-AD0D-EDB39115514C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodApp.Infrastructure", ""FoodApp.Infrastructure\FoodApp.Infrastructure.csproj"", "{60AEBACA-C196-4F84-AD0D-EDB39115514C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodAppMVC.WebMVC", "FoodAppMVC.WebMVC\FoodAppMVC.WebMVC.csproj", "{8EDBDFFD-0484-4328-9004-AC3FFFBD53B7}"
 EndProject
