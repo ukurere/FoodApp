@@ -16,3 +16,4 @@ namespace FoodApp.Infrastructure.Configurations
         }
     }
 }
+   
