@@ -1,0 +1,25 @@
+﻿@model List<FoodAppMVC.WebMVC.Models.IngredientFrequencyViewModel>
+
+@{
+    ViewData["Title"] = "Ingredient Usage Frequency";
+}
+
+<h2>Ingredient Usage Frequency</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ingredient</th>
+            <th>Usage Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.IngredientName</td>
+                <td>@item.UsageCount</td>
+            </tr>
+        }
+    </tbody>
+</table>

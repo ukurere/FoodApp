@@ -13,15 +13,6 @@ Console.WriteLine($"🔍 Trying to load config: {builder.Environment.ContentRoot
 var configuration = builder.Configuration;
 var connectionString = configuration.GetConnectionString("FoodAppContext");
 
-/*
-if (string.IsNullOrEmpty(connectionString))
-{
-    Console.WriteLine("Connection string is missing!");
-    throw new Exception("Connection string is not set in configuration.");
-}
-Console.WriteLine($"Connection string: {connectionString}");
-*/
-
 builder.Services.AddDbContext<FoodAppContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -48,15 +39,13 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Dishes}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-Console.WriteLine("🚀 Applying migrations...");
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<FoodAppContext>();
     dbContext.Database.Migrate();
 }
-Console.WriteLine("✅ Migrations applied successfully.");
 
 app.Run();

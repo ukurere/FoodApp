@@ -16,8 +16,14 @@ public class DishesController : Controller
     // GET: Dishes
     public async Task<IActionResult> Index()
     {
-        return View(await _context.Dishes.ToListAsync());
+        var dishes = await _context.Dishes
+            .Include(d => d.DishIngredients)
+                .ThenInclude(di => di.Ingredient)
+            .ToListAsync();
+
+        return View(dishes);
     }
+
 
     // GET: Dishes/Details/5
     public async Task<IActionResult> Details(int? id)

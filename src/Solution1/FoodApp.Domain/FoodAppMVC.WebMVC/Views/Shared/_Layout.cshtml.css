@@ -46,3 +46,21 @@ button.accept-policy {
   white-space: nowrap;
   line-height: 60px;
 }
+body {
+    background-color: #f5fff5;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.navbar, .btn-primary {
+    background-color: #3fa34d !important;
+    border-color: #3fa34d !important;
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3 {
+    color: #2c5f2d;
+}
