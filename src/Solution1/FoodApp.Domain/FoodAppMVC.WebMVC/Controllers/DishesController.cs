@@ -17,8 +17,8 @@ namespace FoodAppMVC.WebMVC.Controllers
         public async Task<IActionResult> Index(string? selectedTime, string? selectedType, List<string>? selectedIngredients)
         {
             var allIngredients = await _context.Ingredients.Select(i => i.Name).Distinct().ToListAsync();
-            var allTimes = new List<string> { "10", "20", "30", "40", "60" };
-            var allTypes = new List<string> { "Сніданок", "Обід", "Вечеря" };
+            var allTimes = new List<string> { "5", "10", "20", "30", "40", "60" };
+            var allTypes = new List<string> { "Breakfast", "Dessert", "Side Dish", "Salad" };
 
             var query = _context.Dishes
                 .Include(d => d.DishIngredients)

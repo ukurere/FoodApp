@@ -1,5 +1,4 @@
 ﻿@model DishesFilterViewModel
-
 @{
     ViewData["Title"] = "Усі страви";
 }
@@ -25,26 +24,36 @@
 
         <div class="filter-section">
             <strong>Час</strong>
-            <select name="selectedTime">
+            <select name="SelectedTime">
                 <option value="">Усі</option>
                 @foreach (var time in Model.AllTimes)
                 {
-                    <option value="@time" selected="@(Model.SelectedTime == time ? "selected" : null)">
-                        @time хв
-                    </option>
+                    if (Model.SelectedTime == time)
+                    {
+                        <option value="@time" selected>@time хв</option>
+                    }
+                    else
+                    {
+                        <option value="@time">@time хв</option>
+                    }
                 }
             </select>
         </div>
 
         <div class="filter-section">
             <strong>Тип</strong>
-            <select name="selectedType">
+            <select name="SelectedType">
                 <option value="">Усі</option>
                 @foreach (var type in Model.AllTypes)
                 {
-                    <option value="@type" selected="@(Model.SelectedType == type ? "selected" : null)">
-                        @type
-                    </option>
+                    if (Model.SelectedType == type)
+                    {
+                        <option value="@type" selected>@type</option>
+                    }
+                    else
+                    {
+                        <option value="@type">@type</option>
+                    }
                 }
             </select>
         </div>
@@ -57,7 +66,9 @@
         @foreach (var dish in Model.FilteredDishes)
         {
             <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id" class="dish-card">
-                <img src="@dish.ImageUrl" alt="@dish.Name" />
+                <div class="dish-image-wrapper">
+                    <img src="@dish.ImageUrl" alt="@dish.Name" />
+                </div>
                 <h5>@dish.Name</h5>
                 <p class="description">@dish.Description</p>
                 <div class="meta">
