@@ -1,34 +1,17 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Healthy Harmony";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-
-    <div class="text-center mb-4">
-        <h1 class="display-4">FoodApp Analytics Dashboard</h1>
-        <p class="lead">Explore recipe statistics and ingredient usage</p>
+<div class="hero-container with-bg">
+    <div class="hero-overlay">
+        <h1>Healthy Harmony — <br />ваш помічник у світі<br />здорового харчування</h1>
+        <p>
+            Healthy Harmony — це зручна платформа, створена для тих, хто прагне харчуватися збалансовано та свідомо.
+            Ми допоможемо вам підібрати страви за наявними інгредієнтами або часом приготування. У нашій бібліотеці
+            зібрано різноманітні рецепти з фото та покроковими інструкціями — від швидких сніданків до повноцінних обідів.
+            Зробіть харчування простішим, кориснішим і смачнішим разом з нами.
+        </p>
+        <a class="main-button" href="/Dishes">Перейти до вибору страви</a>
     </div>
-
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Go to Ingredient Stats</h5>
-                    <p class="card-text">View how often each ingredient is used across dishes.</p>
-                    <a href="/Stats/IngredientFrequency" class="btn btn-primary">View Table</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Coming Soon: Graphs</h5>
-                    <p class="card-text">You'll soon see visual graphs and trends here.</p>
-                    <button class="btn btn-secondary" disabled>Not Yet Available</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>

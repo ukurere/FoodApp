@@ -1,59 +1,70 @@
-﻿@model IEnumerable<Dish>
+﻿@model DishesFilterViewModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Усі страви";
 }
 
-<h1>Index</h1>
+<link rel="stylesheet" href="~/css/dishes.css" asp-append-version="true" />
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PreparationTimeMinutes)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Type)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Recipe)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                <td>@Html.DisplayFor(modelItem => item.PreparationTimeMinutes)</td>
-                <td>@Html.DisplayFor(modelItem => item.Type)</td>
-                <td>@Html.DisplayFor(modelItem => item.Recipe)</td>
+<div class="dishes-page-wrapper">
+    <!-- Sidebar з фільтрами -->
+    <form asp-action="Index" method="get" class="filters-panel">
+        <h2>Оберіть фільтри</h2>
 
-                <td>
-                    <ul>
-                        @foreach (var di in item.DishIngredients)
-                        {
-                            <li>
-                                @di.Ingredient.Name x @di.CntIngredient
-                                @(di.IsMandatory ? "(required)" : "(optional)")
-                            </li>
-                        }
-                    </ul>
-                </td>
+        <div class="filter-section">
+            <strong>Інгредієнти</strong>
+            @foreach (var ingredient in Model.AllIngredients)
+            {
+                <div>
+                    <input type="checkbox" name="selectedIngredients" value="@ingredient"
+                    @(Model.SelectedIngredients?.Contains(ingredient) == true ? "checked" : "") />
+                    <label>@ingredient</label>
+                </div>
+            }
+        </div>
 
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.DishId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.DishId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.DishId">Delete</a>
-                </td>
-            </tr>
+        <div class="filter-section">
+            <strong>Час</strong>
+            <select name="selectedTime">
+                <option value="">Усі</option>
+                @foreach (var time in Model.AllTimes)
+                {
+                    <option value="@time" selected="@(Model.SelectedTime == time ? "selected" : null)">
+                        @time хв
+                    </option>
+                }
+            </select>
+        </div>
 
-}
-    </tbody>
-</table>
+        <div class="filter-section">
+            <strong>Тип</strong>
+            <select name="selectedType">
+                <option value="">Усі</option>
+                @foreach (var type in Model.AllTypes)
+                {
+                    <option value="@type" selected="@(Model.SelectedType == type ? "selected" : null)">
+                        @type
+                    </option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="search-button">Шукати!</button>
+    </form>
+
+    <!-- Основний блок зі стравами -->
+    <div class="dish-cards-grid">
+        @foreach (var dish in Model.FilteredDishes)
+        {
+            <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id" class="dish-card">
+                <img src="@dish.ImageUrl" alt="@dish.Name" />
+                <h5>@dish.Name</h5>
+                <p class="description">@dish.Description</p>
+                <div class="meta">
+                    <span>@dish.Type</span>
+                    <span>@dish.CookingTime хв</span>
+                </div>
+            </a>
+        }
+    </div>
+</div>

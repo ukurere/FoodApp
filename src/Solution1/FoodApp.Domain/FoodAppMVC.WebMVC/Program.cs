@@ -4,11 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using FoodApp.Infrastructure;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-Console.WriteLine($"🔍 Trying to load config: {builder.Environment.ContentRootPath}");
 
 var configuration = builder.Configuration;
 var connectionString = configuration.GetConnectionString("FoodAppContext");
@@ -19,6 +17,14 @@ builder.Services.AddDbContext<FoodAppContext>(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Users/Login";
+        options.LogoutPath = "/Users/Logout";
+    });
 
 var app = builder.Build();
 
@@ -33,7 +39,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapStaticAssets();
 
