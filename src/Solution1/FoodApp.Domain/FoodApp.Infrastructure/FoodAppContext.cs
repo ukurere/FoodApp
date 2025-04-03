@@ -28,6 +28,13 @@ namespace FoodApp.Infrastructure
             modelBuilder.ApplyConfiguration(new CommentEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new RatingEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new DishIngredientEntityTypeConfiguration());
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(u => u.Role)
+                    .HasColumnName("Role")
+                    .HasMaxLength(20);
+            });
+
         }
     }
 }

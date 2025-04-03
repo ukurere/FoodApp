@@ -8,5 +8,7 @@
         public int CookingTime { get; set; }
         public string Type { get; set; } = "";
         public string ImageUrl { get; set; } = "";
+        public bool IsFavorite { get; set; }
+
     }
 }

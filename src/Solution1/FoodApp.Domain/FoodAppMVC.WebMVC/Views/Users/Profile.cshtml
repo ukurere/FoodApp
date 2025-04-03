@@ -1,0 +1,12 @@
+﻿@model FoodApp.Domain.Entities.User
+@{
+    ViewData["Title"] = "Профіль";
+}
+
+<h2>Профіль</h2>
+<div>
+    <p><strong>Ім'я користувача:</strong> @Model.Username</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Дата реєстрації:</strong> @Model.RegistrationDate.ToShortDateString()</p>
+    <p><strong>Роль:</strong> @Model.Role</p>
+</div>

@@ -23,5 +23,9 @@ namespace FoodAppMVC.WebMVC.Models
         [Compare("Password", ErrorMessage = "Паролі не співпадають")]
         [Display(Name = "Підтвердження пароля")]
         public string ConfirmPassword { get; set; } = null!;
+
+        [Required]
+        [Display(Name = "Роль")]
+        public string Role { get; set; } = "Visitor";
     }
 }

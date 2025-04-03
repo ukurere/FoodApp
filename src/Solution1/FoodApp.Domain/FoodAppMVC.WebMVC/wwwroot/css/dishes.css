@@ -1,43 +1,62 @@
 ﻿body {
     background-color: #fdf8ee;
     font-family: 'Montserrat', sans-serif;
-}
-
-.main-full {
-    width: 100vw;
     margin: 0;
     padding: 0;
 }
 
+.main-full {
+    width: 100vw;
+    overflow-x: hidden;
+}
 
 .dishes-page-wrapper {
     display: flex;
-    padding: 2rem;
     gap: 2rem;
+    height: 100vh;
+    padding: 2rem;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .filters-panel {
-    background-color: #9d836a; /* какао */
+    width: 300px;
+    background-color: #a1866f; /* какао */
     padding: 2rem;
     border-radius: 0.5rem;
     color: white;
-    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
 }
 
-    .filters-panel h2 {
-        font-family: 'Pattaya', cursive;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
+.filter-scroll {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
 
-    .filters-panel .filter-section {
-        margin-bottom: 1.5rem;
-    }
+.ingredient-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
 
-    .filters-panel label {
-        display: inline-block;
-        margin-left: 0.5rem;
-    }
+.filters-panel h2 {
+    font-family: 'Pattaya', cursive;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.filters-panel .filter-section {
+    margin-bottom: 1.5rem;
+}
+
+.filters-panel label {
+    display: inline-block;
+    margin-left: 0.5rem;
+}
 
 .search-button {
     background-color: #e6d9c0;
@@ -48,115 +67,26 @@
     border-radius: 2rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    align-self: center;
 }
 
     .search-button:hover {
         background-color: #d5c5a3;
     }
 
-/* Cards Grid */
 .dish-cards-grid {
     flex: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 2rem;
-}
-
-/* Individual Dish Card */
-.dish-card {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    text-align: center;
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
-}
-
-    .dish-card:hover {
-        transform: scale(1.01);
-    }
-
-    .dish-card img {
-        max-width: 100%;
-        height: auto;
-        object-fit: cover;
-        border-radius: 0.5rem;
-    }
-
-    .dish-card h5 {
-        font-family: 'Pattaya', cursive;
-        font-size: 1.3rem;
-        margin: 0.5rem 0;
-        color: #6b4f3b;
-    }
-
-    .dish-card .description {
-        font-size: 0.9rem;
-        color: #444;
-        margin-bottom: 0.5rem;
-    }
-
-    .dish-card .meta {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.8rem;
-        color: #888;
-        font-weight: bold;
-    }
-.dishes-page-wrapper {
-    display: flex;
-    height: 100vh; /* Займає всю висоту вікна */
-}
-
-.filters-panel {
-    width: 300px;
-    background-color: #a1866f; /* Какао */
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    color: white;
-    height: 100%; /* Теж важливо */
-}
-
-.dish-cards-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    overflow-y: auto;
-    max-height: 80vh; /* або vh / px — залежить від макету */
-    padding-right: 0.5rem; /* для скролбару */
-}
-
-
-.dish-card {
-    display: block;
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.2s ease;
-    cursor: pointer;
-}
-
-    .dish-card:hover {
-        transform: scale(1.02);
-    }
-.dish-cards-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
     overflow-y: auto;
     max-height: calc(100vh - 100px);
+    padding-right: 1rem;
+    justify-content: center;
 }
 
 .dish-card {
-    flex: 1 0 220px;
-    max-width: 220px;
+    width: 240px;
     background-color: #fff;
     border-radius: 15px;
     padding: 10px;
@@ -168,6 +98,7 @@
     flex-direction: column;
     justify-content: space-between;
     transition: transform 0.2s ease;
+    position: relative;
 }
 
     .dish-card:hover {
@@ -180,6 +111,7 @@
     overflow: hidden;
     border-radius: 10px;
     margin-bottom: 10px;
+    position: relative;
 }
 
     .dish-image-wrapper img {
@@ -188,9 +120,46 @@
         object-fit: cover;
     }
 
+.dish-card h5 {
+    font-family: 'Pattaya', cursive;
+    font-size: 1.3rem;
+    margin: 0.5rem 0;
+    color: #6b4f3b;
+}
+
+.dish-card .description {
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 0.5rem;
+}
+
 .meta {
     display: flex;
     justify-content: space-between;
     font-size: 0.9em;
     color: #888;
+}
+
+.dish-card-wrapper {
+    margin: 0;
+}
+
+.empty-favorites-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    font-size: 1.2rem;
+    font-family: 'Montserrat', sans-serif;
+    color: #555;
+}
+
+.favorite-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    color: goldenrod;
+    background-color: white;
+    border-radius: 50%;
+    padding: 5px;
+    z-index: 10;
 }

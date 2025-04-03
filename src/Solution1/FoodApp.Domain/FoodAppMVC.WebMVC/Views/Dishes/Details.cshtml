@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = Model.Name;
     var imageName = Model.Name.ToLower().Replace(" ", "") + ".jpg";
+    var isFavorite = ViewBag.IsFavorite as bool? ?? false;
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <link rel="stylesheet" href="~/css/dish-details.css" asp-append-version="true" />
@@ -13,21 +15,65 @@
     </div>
 
     <div class="info-side">
-        <h1>@Model.Name</h1>
-        <div class="meta">
-            <span>@Model.Type</span>
-            <span>@Model.PreparationTimeMinutes хв</span>
+        <div class="info-box">
+            <div class="dish-header">
+                <h1 class="dish-title">@Model.Name</h1>
+
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <button class="heart-button @(isFavorite ? "filled" : "")" data-dish-id="@Model.DishId">
+                        <span>&#10084;</span>
+                    </button>
+                }
+            </div>
+
+            <div class="meta">
+                <span class="dish-type">@Model.Type</span>
+                <span class="dish-time">@Model.PreparationTimeMinutes хв</span>
+            </div>
+
+            <div class="two-columns">
+                <div>
+                    <h3>Рецепт:</h3>
+                    <p>@Model.Recipe</p>
+                </div>
+                <div>
+                    <h3>Інгредієнти</h3>
+                    <ul>
+                        @foreach (var di in Model.DishIngredients)
+                        {
+                            <li>@di.Ingredient.Name @((di.Quantity > 0) ? $"({di.Quantity})" : "")</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="comments-button-container">
+                <a href="@Url.Action("Comments", "Dishes", new { id = Model.DishId })" class="comments-button">Коментарі</a>
+            </div>
         </div>
-
-        <h3>Рецепт:</h3>
-        <p>@Model.Recipe</p>
-
-        <h3>Інгредієнти</h3>
-        <ul>
-            @foreach (var di in Model.DishIngredients)
-            {
-                <li>@di.Ingredient.Name @((di.Quantity > 0) ? $"({di.Quantity})" : "")</li>
-            }
-        </ul>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const heartButton = document.querySelector('.heart-button');
+            if (heartButton) {
+                heartButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const dishId = this.getAttribute('data-dish-id');
+
+                    fetch(`/FavoriteDishes/Toggle?dishId=${dishId}`, {
+                        method: 'POST'
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                this.classList.toggle('filled');
+                            }
+                        });
+                });
+            }
+        });
+    </script>
+}

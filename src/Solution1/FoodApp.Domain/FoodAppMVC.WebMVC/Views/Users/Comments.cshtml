@@ -1,0 +1,26 @@
+﻿@using FoodApp.Domain.Entities
+@model List<Comment>
+
+@{
+    ViewData["Title"] = "Мої коментарі";
+}
+
+<h2>Ваші коментарі</h2>
+
+@if (!Model.Any())
+{
+    <p>Ви ще не залишили коментарів.</p>
+}
+else
+{
+    <ul>
+        @foreach (var comment in Model)
+        {
+            <li>
+                <strong>@comment.Dish?.Name</strong>: @comment.Text
+                <br />
+                <small>Опубліковано: @comment.DatePosted.ToShortDateString()</small>
+            </li>
+        }
+    </ul>
+}

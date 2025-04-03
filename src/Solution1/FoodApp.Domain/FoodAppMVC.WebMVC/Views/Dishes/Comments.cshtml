@@ -1,0 +1,24 @@
+﻿@using FoodApp.Domain.Entities
+
+@model Dish
+@{
+    ViewData["Title"] = "Коментарі до " + Model.Name;
+}
+
+<h2>Коментарі до страви: @Model.Name</h2>
+
+@if (Model.Comments != null && Model.Comments.Any())
+{
+    <ul>
+        @foreach (var comment in Model.Comments)
+        {
+            <li>
+                <strong>@comment.User.Username:</strong> @comment.Text
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>Коментарів ще немає.</p>
+}

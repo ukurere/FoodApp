@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodApp.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FoodAppMVC.WebMVC.Controllers
 {
+    [Authorize]
     public class RatingsController : Controller
     {
         private readonly FoodAppContext _context;

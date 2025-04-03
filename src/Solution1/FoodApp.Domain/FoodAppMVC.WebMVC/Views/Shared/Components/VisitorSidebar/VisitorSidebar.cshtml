@@ -1,0 +1,25 @@
+﻿<div class="user-sidebar bg-light p-3 rounded shadow-sm mb-3">
+    <h5 class="mb-3">Меню користувача</h5>
+    <ul class="list-unstyled">
+        <li class="mb-2">
+            <a asp-controller="Users" asp-action="Favorites" class="text-dark text-decoration-none">
+                💚 Переглянути обране
+            </a>
+        </li>
+        <li class="mb-2">
+            <a asp-controller="Users" asp-action="Comments" class="text-dark text-decoration-none">
+                💬 Переглянути свої коментарі
+            </a>
+        </li>
+        <li class="mb-2">
+            <a asp-controller="Users" asp-action="Ratings" class="text-dark text-decoration-none">
+                ⭐ Переглянути свої оцінки
+            </a>
+        </li>
+        <li>
+            <a asp-controller="Users" asp-action="Profile" class="text-dark text-decoration-none">
+                👤 Профіль
+            </a>
+        </li>
+    </ul>
+</div>

@@ -9,6 +9,7 @@ public class User : IAggregateRoot
     public string Email { get; set; }
     public string PasswordHash { get; set; }
     public DateTime RegistrationDate { get; set; }
+    public string Role { get; set; } = "Visitor";
 
     public List<FavoriteDish> FavoriteDishes { get; set; } = new();
     public List<Comment> Comments { get; set; } = new();

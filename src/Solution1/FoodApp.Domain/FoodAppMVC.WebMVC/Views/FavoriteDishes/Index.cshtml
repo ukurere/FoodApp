@@ -1,47 +1,39 @@
-﻿@model IEnumerable<FavoriteDish>
+﻿@using FoodApp.Domain.Entities
+@model List<Dish>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Улюблені страви";
 }
 
-<h1>Index</h1>
+<h2 class="section-title">Улюблені страви</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Dish)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DateAdded)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Dish.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateAdded)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+@if (Model == null || !Model.Any())
+{
+    <div class="empty-favorites-message">
+        <p>У вас ще немає улюблених страв.</p>
+        <a asp-controller="Dishes" asp-action="Index" class="main-button">Перейти до всіх страв</a>
+    </div>
 }
-    </tbody>
-</table>
+else
+{
+    <div class="dish-cards-grid">
+        @foreach (var dish in Model)
+        {
+            var imageUrl = $"/images/{dish.Name.ToLower().Replace(" ", "")}.jpg";
+
+            <div class="dish-card">
+                <img src="@imageUrl" alt="@dish.Name" class="dish-card-image" />
+
+                <div class="dish-card-content">
+                    <h5 class="dish-card-title">@dish.Name</h5>
+                    <p class="dish-card-description">@dish.Recipe</p>
+
+                    <form asp-action="Remove" method="post">
+                        <input type="hidden" name="dishId" value="@dish.DishId" />
+                        <button type="submit" class="main-button danger">Видалити з улюблених</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}

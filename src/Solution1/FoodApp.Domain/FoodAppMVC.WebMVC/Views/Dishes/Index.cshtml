@@ -6,76 +6,89 @@
 <link rel="stylesheet" href="~/css/dishes.css" asp-append-version="true" />
 
 <div class="dishes-page-wrapper">
-    <!-- Sidebar з фільтрами -->
+    <!-- Панель фільтрів -->
     <form asp-action="Index" method="get" class="filters-panel">
-        <h2>Оберіть фільтри</h2>
+        <div class="filter-scroll">
+            <h2>Оберіть фільтри</h2>
 
-        <div class="filter-section">
-            <strong>Інгредієнти</strong>
-            @foreach (var ingredient in Model.AllIngredients)
-            {
-                <div>
-                    <input type="checkbox" name="selectedIngredients" value="@ingredient"
-                    @(Model.SelectedIngredients?.Contains(ingredient) == true ? "checked" : "") />
-                    <label>@ingredient</label>
+            <div class="filter-section">
+                <strong>Інгредієнти</strong>
+                <div class="ingredient-list">
+                    @foreach (var ingredient in Model.AllIngredients)
+                    {
+                        <label>
+                            <input type="checkbox" name="selectedIngredients" value="@ingredient"
+                                   @(Model.SelectedIngredients?.Contains(ingredient) == true ? "checked" : "") />
+                            @ingredient
+                        </label>
+                    }
                 </div>
-            }
-        </div>
+            </div>
 
-        <div class="filter-section">
-            <strong>Час</strong>
-            <select name="SelectedTime">
-                <option value="">Усі</option>
-                @foreach (var time in Model.AllTimes)
-                {
-                    if (Model.SelectedTime == time)
+            <div class="filter-section">
+                <strong>Час</strong>
+                <select name="SelectedTime">
+                    <option value="">Усі</option>
+                    @foreach (var time in Model.AllTimes)
                     {
-                        <option value="@time" selected>@time хв</option>
+                        if (Model.SelectedTime == time)
+                        {
+                            <option value="@time" selected>@time хв</option>
+                        }
+                        else
+                        {
+                            <option value="@time">@time хв</option>
+                        }
                     }
-                    else
-                    {
-                        <option value="@time">@time хв</option>
-                    }
-                }
-            </select>
-        </div>
+                </select>
 
-        <div class="filter-section">
-            <strong>Тип</strong>
-            <select name="SelectedType">
-                <option value="">Усі</option>
-                @foreach (var type in Model.AllTypes)
-                {
-                    if (Model.SelectedType == type)
+            </div>
+
+            <div class="filter-section">
+                <strong>Тип</strong>
+                <select name="SelectedType">
+                    <option value="">Усі</option>
+                    @foreach (var type in Model.AllTypes)
                     {
-                        <option value="@type" selected>@type</option>
+                        if (Model.SelectedType == type)
+                        {
+                            <option value="@type" selected>@type</option>
+                        }
+                        else
+                        {
+                            <option value="@type">@type</option>
+                        }
                     }
-                    else
-                    {
-                        <option value="@type">@type</option>
-                    }
-                }
-            </select>
+                </select>
+
+            </div>
         </div>
 
         <button type="submit" class="search-button">Шукати!</button>
     </form>
 
-    <!-- Основний блок зі стравами -->
+    <!-- Основна частина: страви -->
     <div class="dish-cards-grid">
         @foreach (var dish in Model.FilteredDishes)
         {
-            <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id" class="dish-card">
-                <div class="dish-image-wrapper">
-                    <img src="@dish.ImageUrl" alt="@dish.Name" />
-                </div>
-                <h5>@dish.Name</h5>
-                <p class="description">@dish.Description</p>
-                <div class="meta">
-                    <span>@dish.Type</span>
-                    <span>@dish.CookingTime хв</span>
-                </div>
-            </a>
+            <div class="dish-card-wrapper">
+                <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id" class="dish-card">
+                    <div class="dish-image-wrapper">
+                        <img src="@dish.ImageUrl" alt="@dish.Name" />
+                        @if (dish.IsFavorite)
+                        {
+                            <span class="favorite-icon">❤️</span>
+                        }
+                    </div>
+
+                    <h5>@dish.Name</h5>
+                    <p class="description">@dish.Description</p>
+                    <div class="meta">
+                        <span>@dish.Type</span>
+                        <span>@dish.CookingTime хв</span>
+                    </div>
+                </a>
+            </div>
         }
     </div>
 </div>

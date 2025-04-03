@@ -1,0 +1,15 @@
+﻿@model ProfileViewModel
+@{
+    ViewData["Title"] = "Профіль";
+}
+
+<h2>Вітаємо, @Model.Username!</h2>
+
+<ul>
+    <li><strong>Email:</strong> @Model.Email</li>
+    <li><strong>Роль:</strong> @Model.Role</li>
+</ul>
+
+<form asp-controller="Account" asp-action="Logout" method="post">
+    <button type="submit" class="btn btn-danger">Вийти</button>
+</form>

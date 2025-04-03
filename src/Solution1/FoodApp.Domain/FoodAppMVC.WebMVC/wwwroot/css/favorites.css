@@ -1,0 +1,61 @@
+﻿.section-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.dish-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.dish-card {
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+    .dish-card:hover {
+        transform: scale(1.02);
+    }
+
+.dish-card-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid #ddd;
+}
+
+.dish-card-content {
+    padding: 1rem;
+}
+
+.dish-card-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.dish-card-description {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    color: #444;
+}
+
+.main-button.danger {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-family: 'Pattaya', sans-serif;
+    transition: background-color 0.3s;
+}
+
+    .main-button.danger:hover {
+        background-color: #c0392b;
+    }

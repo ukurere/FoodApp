@@ -1,13 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using FoodAppMVC.WebMVC.Models;
 using FoodApp.Domain.Entities;
 using FoodApp.Infrastructure;
-using FoodAppMVC.WebMVC.Models; // для ViewModels
-using System.Security.Cryptography;
-using System.Text;
 
 namespace FoodAppMVC.WebMVC.Controllers
 {
@@ -20,77 +19,196 @@ namespace FoodAppMVC.WebMVC.Controllers
             _context = context;
         }
 
-        // === LOGIN ===
         [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
-        {
-            if (!ModelState.IsValid) return View(model);
-
-            var hashedPassword = HashPassword(model.Password);
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == model.Email && u.PasswordHash == hashedPassword);
-
-            if (user == null)
-            {
-                ModelState.AddModelError("", "Неправильна пошта або пароль");
-                return View(model);
-            }
-
-            // TODO: зберегти логін сесію або кукі
-            TempData["Message"] = $"Вітаємо, {user.Username}!";
-            return RedirectToAction("Index", "Home");
-        }
-
-        // === REGISTER ===
-        [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+                return View(model);
 
             if (_context.Users.Any(u => u.Email == model.Email))
             {
-                ModelState.AddModelError("Email", "Користувач з такою поштою вже існує.");
+                ModelState.AddModelError("Email", "Користувач з такою електронною поштою вже існує.");
                 return View(model);
             }
 
-            var newUser = new User
+            var user = new User
             {
                 Username = model.Username,
                 Email = model.Email,
-                PasswordHash = HashPassword(model.Password),
-                RegistrationDate = DateTime.Now
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
+                RegistrationDate = DateTime.Now,
+                Role = model.Role
             };
 
-            _context.Users.Add(newUser);
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            await SignInUser(user);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
+            {
+                ModelState.AddModelError("Email", "Невірна електронна пошта або пароль.");
+                return View(model);
+            }
+
+            await SignInUser(user);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
 
-        // === SIMPLE HASHING ===
-        private string HashPassword(string password)
+        [Authorize]
+        public async Task<IActionResult> Profile()
         {
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+                return NotFound();
+
+            return View(user);
         }
 
-        // решта CRUD-методів залиш без змін...
+        [Authorize]
+        public async Task<IActionResult> Favorites()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var favoriteDishes = await _context.FavoriteDishes
+                .Where(f => f.UserID == userId)
+                .Include(f => f.Dish)
+                .Select(f => f.Dish)
+                .ToListAsync();
+
+            var model = favoriteDishes.Select(d => new DishViewModel
+            {
+                Id = d.DishId,
+                Name = d.Name,
+                Description = d.Recipe,
+                CookingTime = d.PreparationTimeMinutes,
+                Type = d.Type,
+                ImageUrl = $"/images/{d.Name.ToLower().Replace(" ", "")}.jpg",
+                IsFavorite = true
+            }).ToList();
+
+            return View(model); // 👈 Сюди має йти model типу List<DishViewModel>
+        }
+
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddToFavorites(int dishId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            if (!_context.FavoriteDishes.Any(f => f.UserID == userId && f.DishID == dishId))
+            {
+                _context.FavoriteDishes.Add(new FavoriteDish { UserID = userId, DishID = dishId });
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Favorites");
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> RemoveFromFavorites(int dishId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var favorite = await _context.FavoriteDishes
+                .FirstOrDefaultAsync(f => f.UserID == userId && f.DishID == dishId);
+
+            if (favorite != null)
+            {
+                _context.FavoriteDishes.Remove(favorite);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Favorites");
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Ratings()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var ratings = await _context.Ratings
+                .Where(r => r.UserID == userId)
+                .Include(r => r.Dish)
+                .ToListAsync();
+
+            return View(ratings);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Comments()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var comments = await _context.Comments
+                .Where(c => c.UserID == userId)
+                .Include(c => c.Dish)
+                .ToListAsync();
+
+            return View(comments);
+        }
+
+        private async Task SignInUser(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        }
 
         private bool UserExists(int id) => _context.Users.Any(e => e.UserId == id);
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
     }
 }

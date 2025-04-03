@@ -1,0 +1,43 @@
+﻿@model List<FoodAppMVC.WebMVC.Models.DishViewModel>
+
+@{
+    ViewData["Title"] = "Обрані страви";
+}
+
+<link rel="stylesheet" href="~/css/dishes.css" asp-append-version="true" />
+
+<div class="dishes-page-wrapper" style="width: 100%;">
+    <div class="container-fluid">
+        <h2 class="mb-4" style="font-family: 'Pattaya', cursive; color: #365b3f;">Ваші улюблені страви</h2>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-favorites-message">
+                У вас поки немає обраних страв 💔
+            </div>
+        }
+        else
+        {
+            <div class="dish-cards-grid">
+                @foreach (var dish in Model)
+                {
+                    <div class="dish-card-wrapper">
+                        <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id" class="dish-card">
+                            <div class="dish-image-wrapper">
+                                <img src="@dish.ImageUrl" alt="@dish.Name" />
+                                <span class="favorite-icon">❤️</span>
+                            </div>
+
+                            <h5>@dish.Name</h5>
+                            <p class="description">@dish.Description</p>
+                            <div class="meta">
+                                <span>@dish.Type</span>
+                                <span>@dish.CookingTime хв</span>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

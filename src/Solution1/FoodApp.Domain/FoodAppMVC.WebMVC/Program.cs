@@ -24,7 +24,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Users/Login";
         options.LogoutPath = "/Users/Logout";
+        options.AccessDeniedPath = "/Users/AccessDenied";
+
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+});
+
+
 
 var app = builder.Build();
 

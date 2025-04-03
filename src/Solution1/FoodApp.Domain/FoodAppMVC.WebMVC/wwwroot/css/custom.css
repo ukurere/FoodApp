@@ -82,3 +82,86 @@
         background-color: #a0ca75;
         color: #fff;
     }
+
+    .visitor-sidebar {
+        background-color: #fef6e4;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+        .visitor-sidebar ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .visitor-sidebar a {
+            text-decoration: none;
+            color: #365b3f;
+        }
+
+.burger-icon {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.user-sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 250px;
+    height: 100%;
+    background-color: #2e7d32; /* той самий зелений, що у шапці */
+    color: white;
+    padding: 20px;
+    transition: left 0.3s ease;
+    z-index: 1000;
+}
+
+    .user-sidebar h5 {
+        margin-bottom: 1rem;
+    }
+
+    .user-sidebar ul {
+        list-style: none;
+        padding: 0;
+    }
+
+        .user-sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+            .user-sidebar ul li a {
+                color: white;
+                text-decoration: none;
+            }
+
+                .user-sidebar ul li a:hover {
+                    text-decoration: underline;
+                }
+
+    .user-sidebar.open {
+        left: 0;
+    }
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+/* Додай для вирівнювання карток страв */
+.dish-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    justify-items: center;
+}
