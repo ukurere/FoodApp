@@ -2,14 +2,14 @@
 @model List<Comment>
 
 @{
-    ViewData["Title"] = "Мої коментарі";
+    ViewData["Title"] = "My comments";
 }
 
 <h2>Ваші коментарі</h2>
 
 @if (!Model.Any())
 {
-    <p>Ви ще не залишили коментарів.</p>
+    <p>You haven't commented yet.</p>
 }
 else
 {
@@ -19,7 +19,7 @@ else
             <li>
                 <strong>@comment.Dish?.Name</strong>: @comment.Text
                 <br />
-                <small>Опубліковано: @comment.DatePosted.ToShortDateString()</small>
+                <small>Posted: @comment.DatePosted.ToShortDateString()</small>
             </li>
         }
     </ul>

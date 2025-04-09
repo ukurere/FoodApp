@@ -1,0 +1,59 @@
+﻿body {
+    background-color: #fef6e4;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.comments-page {
+    padding: 2rem;
+}
+
+.comments-title {
+    font-family: 'Pattaya', cursive;
+    font-size: 2.5rem;
+    color: #1f3d2f;
+}
+
+.add-comment-btn {
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+.comments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.comment-card {
+    background-color: #c7db4d;
+    padding: 1.2rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.stars {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #184a2c;
+}
+
+.star.filled {
+    color: #184a2c;
+}
+
+.comment-text {
+    margin: 0.5rem 0 1rem;
+}
+
+.comment-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .comment-author .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }

@@ -1,53 +1,38 @@
 ﻿@model DishesFilterViewModel
 @{
-    ViewData["Title"] = "Усі страви";
+    ViewData["Title"] = "All Dishes";
 }
 
 <link rel="stylesheet" href="~/css/dishes.css" asp-append-version="true" />
 
 <div class="dishes-page-wrapper">
-    <!-- Панель фільтрів -->
+    <!-- Filter Panel -->
     <form asp-action="Index" method="get" class="filters-panel">
         <div class="filter-scroll">
-            <h2>Оберіть фільтри</h2>
+            <h2>Select Filters</h2>
 
             <div class="filter-section">
-                <strong>Інгредієнти</strong>
-                <div class="ingredient-list">
-                    @foreach (var ingredient in Model.AllIngredients)
-                    {
-                        <label>
-                            <input type="checkbox" name="selectedIngredients" value="@ingredient"
-                                   @(Model.SelectedIngredients?.Contains(ingredient) == true ? "checked" : "") />
-                            @ingredient
-                        </label>
-                    }
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <strong>Час</strong>
+                <strong>Preparation Time</strong>
                 <select name="SelectedTime">
-                    <option value="">Усі</option>
+                    <option value="">All</option>
                     @foreach (var time in Model.AllTimes)
                     {
                         if (Model.SelectedTime == time)
                         {
-                            <option value="@time" selected>@time хв</option>
+                            <option value="@time" selected>@time min</option>
                         }
                         else
                         {
-                            <option value="@time">@time хв</option>
+                            <option value="@time">@time min</option>
                         }
                     }
                 </select>
-
             </div>
 
             <div class="filter-section">
-                <strong>Тип</strong>
+                <strong>Type</strong>
                 <select name="SelectedType">
-                    <option value="">Усі</option>
+                    <option value="">All</option>
                     @foreach (var type in Model.AllTypes)
                     {
                         if (Model.SelectedType == type)
@@ -60,14 +45,31 @@
                         }
                     }
                 </select>
+            </div>
 
+            <div class="filter-section">
+                <strong>Ingredients</strong>
+                <div class="ingredient-list">
+                    @foreach (var ingredient in Model.AllIngredients)
+                    {
+                        <label>
+                            <input type="checkbox" name="selectedIngredients" value="@ingredient"
+                            @(Model.SelectedIngredients?.Contains(ingredient) == true ? "checked" : "") />
+                            @ingredient
+                        </label>
+                    }
+                </div>
             </div>
         </div>
 
-        <button type="submit" class="search-button">Шукати!</button>
+        <div class="filter-actions d-flex flex-column align-items-start">
+            <button type="submit" class="search-button">Apply Filters</button>
+            <a asp-action="Index" class="text-decoration-underline text-white mt-2" style="font-size: 0.9rem;">Reset Filters</a>
+        </div>
+
     </form>
 
-    <!-- Основна частина: страви -->
+    <!-- Dish Cards -->
     <div class="dish-cards-grid">
         @foreach (var dish in Model.FilteredDishes)
         {
@@ -85,7 +87,7 @@
                     <p class="description">@dish.Description</p>
                     <div class="meta">
                         <span>@dish.Type</span>
-                        <span>@dish.CookingTime хв</span>
+                        <span>@dish.CookingTime min</span>
                     </div>
                 </a>
             </div>

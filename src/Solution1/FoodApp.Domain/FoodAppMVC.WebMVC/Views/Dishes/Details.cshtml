@@ -1,44 +1,37 @@
 ﻿@model Dish
-
 @{
     ViewData["Title"] = Model.Name;
     var imageName = Model.Name.ToLower().Replace(" ", "") + ".jpg";
     var isFavorite = ViewBag.IsFavorite as bool? ?? false;
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    var comments = ViewBag.Comments as List<CommentWithRatingViewModel> ?? new();
 }
 
 <link rel="stylesheet" href="~/css/dish-details.css" asp-append-version="true" />
 
-<div class="dish-details-container">
-    <div class="image-side">
+<div class="dish-page">
+    <div class="dish-image">
         <img src="~/images/@imageName" alt="@Model.Name" />
     </div>
 
-    <div class="info-side">
-        <div class="info-box">
-            <div class="dish-header">
-                <h1 class="dish-title">@Model.Name</h1>
+    <div class="dish-info">
+        <div class="dish-content">
 
-                @if (User.Identity != null && User.Identity.IsAuthenticated)
-                {
+            <div class="header-section">
+                <h1 class="dish-name">@Model.Name</h1>
+                <div class="dish-meta">
+                    <span class="dish-type">@Model.Type</span>
+                    <span class="dish-time">@Model.PreparationTimeMinutes min</span>
                     <button class="heart-button @(isFavorite ? "filled" : "")" data-dish-id="@Model.DishId">
-                        <span>&#10084;</span>
+                        ❤️
                     </button>
-                }
-            </div>
-
-            <div class="meta">
-                <span class="dish-type">@Model.Type</span>
-                <span class="dish-time">@Model.PreparationTimeMinutes хв</span>
-            </div>
-
-            <div class="two-columns">
-                <div>
-                    <h3>Рецепт:</h3>
-                    <p>@Model.Recipe</p>
                 </div>
+            </div>
+
+            <hr />
+
+            <div class="section-flex">
                 <div>
-                    <h3>Інгредієнти</h3>
+                    <h4>Ingredients</h4>
                     <ul>
                         @foreach (var di in Model.DishIngredients)
                         {
@@ -46,34 +39,104 @@
                         }
                     </ul>
                 </div>
+                <div class="placeholder-diagram">Nutrition chart coming soon</div>
             </div>
 
-            <div class="comments-button-container">
-                <a href="@Url.Action("Comments", "Dishes", new { id = Model.DishId })" class="comments-button">Коментарі</a>
+            <hr />
+
+            <div class="recipe-section">
+                <h3>Recipe</h3>
+                <p>@Model.Recipe</p>
+            </div>
+
+            <hr />
+
+            <div class="comments-section">
+                <div class="comments-header">
+                    <h3>Comments</h3>
+                    <a class="add-comment-button" href="@Url.Action("AddComment", "Dishes", new { dishId = Model.DishId })">+</a>
+                </div>
+
+                <div class="comment-cards">
+                    @foreach (var comment in comments)
+                    {
+                        <div class="comment-card">
+                            <div class="comment-rating">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <span style="color:@(i <= comment.RatingValue ? "#ffcc00" : "#ccc")">★</span>
+                                }
+                            </div>
+                            <p>@comment.Text</p>
+                            <strong>@comment.AuthorName</strong>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<button class="open-modal-btn">+</button>
+
+<!-- Модальне вікно -->
+<div id="addCommentModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+
+        <form asp-action="AddComment" method="post">
+            <input type="hidden" name="DishId" value="@Model.DishId" />
+
+            <div class="form-group">
+                <label for="Text">Comment</label>
+                <textarea name="Text" class="form-control" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="RatingValue">Rating</label>
+                <select name="RatingValue" class="form-control" required>
+                    <option value="">Select rating</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+
+            <button type="submit" class="main-button">Submit</button>
+        </form>
+    </div>
+</div>
+
+
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const heartButton = document.querySelector('.heart-button');
-            if (heartButton) {
-                heartButton.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const dishId = this.getAttribute('data-dish-id');
+        document.querySelector(".heart-button")?.addEventListener("click", function () {
+            const btn = this;
+            const dishId = btn.getAttribute("data-dish-id");
 
-                    fetch(`/FavoriteDishes/Toggle?dishId=${dishId}`, {
-                        method: 'POST'
-                    })
-                        .then(response => {
-                            if (response.ok) {
-                                this.classList.toggle('filled');
-                            }
-                        });
+            fetch(`/FavoriteDishes/Toggle?dishId=${dishId}`, { method: "POST" })
+                .then(res => {
+                    if (res.ok) btn.classList.toggle("filled");
                 });
-            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modal = document.getElementById("addCommentModal");
+            const openBtn = document.querySelector(".open-modal-btn");
+            const closeBtn = document.querySelector(".close-modal");
+
+            openBtn?.addEventListener("click", () => modal.style.display = "block");
+            closeBtn?.addEventListener("click", () => modal.style.display = "none");
+
+            window.addEventListener("click", function (event) {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                }
+            });
         });
     </script>
 }
+

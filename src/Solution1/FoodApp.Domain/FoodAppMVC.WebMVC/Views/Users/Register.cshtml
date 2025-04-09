@@ -1,46 +1,40 @@
 ﻿@model RegisterViewModel
+
 @{
-    ViewData["Title"] = "Реєстрація";
+    ViewData["Title"] = "Registration";
 }
 
 <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
 
 <div class="auth-page">
     <div class="auth-form-wrapper" style="margin-left: 12vw;">
-        <h2 class="auth-title">Реєстрація</h2>
+        <h2 class="auth-title">Sign Up</h2>
         <form asp-action="Register" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
             <div class="form-group" style="width: 100%;">
-                <label asp-for="Username">@Html.DisplayNameFor(m => m.Username)</label>
+                <label asp-for="Username">Username</label>
                 <input asp-for="Username" class="form-control" />
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
             <div class="form-group" style="width: 100%;">
-                <label asp-for="Email">@Html.DisplayNameFor(m => m.Email)</label>
+                <label asp-for="Email">Email</label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group" style="width: 100%;">
-                <label asp-for="Password">@Html.DisplayNameFor(m => m.Password)</label>
+                <label asp-for="Password">Password</label>
                 <input asp-for="Password" type="password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="form-group" style="width: 100%;">
-                <label asp-for="ConfirmPassword">@Html.DisplayNameFor(m => m.ConfirmPassword)</label>
+                <label asp-for="ConfirmPassword">Confirm Password</label>
                 <input asp-for="ConfirmPassword" type="password" class="form-control" />
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
-            <div class="form-group" style="width: 100%;">
-                <label asp-for="Role">@Html.DisplayNameFor(m => m.Role)</label>
-                <select asp-for="Role" class="form-control">
-                    <option value="Visitor">Відвідувач</option>
-                    <option value="Admin">Адміністратор</option>
-                </select>
-                <span asp-validation-for="Role" class="text-danger"></span>
-            </div>
-            <button type="submit" class="main-button" style="margin-top: 1rem; align-self: center;">Готово!</button>
+
+            <button type="submit" class="main-button" style="margin-top: 1rem; align-self: center;">Register</button>
         </form>
     </div>
     <div class="auth-image-wrapper" style="position: fixed; top: 0; right: 0; width: 50vw; height: 100vh; z-index: -1;">
-        <img src="~/images/login-bg.jpg" alt="Соки" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0;" />
+        <img src="~/images/login-bg.jpg" alt="Juices" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0;" />
     </div>
 </div>

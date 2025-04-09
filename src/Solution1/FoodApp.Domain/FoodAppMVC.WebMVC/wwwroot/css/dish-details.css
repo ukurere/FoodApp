@@ -1,127 +1,179 @@
 ﻿body {
     margin: 0;
-    padding: 0;
-    overflow-x: hidden;
     font-family: 'Montserrat', sans-serif;
+    background-color: #e0cdb0;
+    color: #000;
 }
 
-.dish-details-container {
+.dish-page {
     display: flex;
     height: 100vh;
     overflow: hidden;
 }
 
-.image-side {
+.dish-image {
     flex: 1;
-    height: 100%;
 }
 
-    .image-side img {
+    .dish-image img {
         width: 100%;
-        height: 100%;
+        height: 100vh;
         object-fit: cover;
-        border-radius: 0;
+        object-position: center;
     }
 
-.info-side {
+.dish-info {
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #26443d;
+    overflow-y: auto;
     padding: 40px;
+    background-color: #e0cdb0;
 }
 
-.info-box {
-    width: 100%;
-    max-width: 700px;
-    background-color: rgba(255, 255, 255, 0.3);
-    padding: 30px 40px;
-    border-radius: 20px;
-    color: #000;
+.dish-content {
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-.dish-title {
-    text-align: center;
+.dish-name {
     font-family: 'Pattaya', cursive;
-    font-size: 40px;
-    margin-bottom: 10px;
-}
-
-.meta {
-    display: flex;
-    justify-content: space-between;
+    font-size: 2.8rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
     font-weight: bold;
-    margin-bottom: 25px;
 }
 
-.dish-header {
+.dish-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.heart-form {
-    margin-left: 1rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
 }
 
 .heart-button {
-    background-color: transparent;
+    background: none;
     border: none;
     font-size: 24px;
-    color: rgba(218, 165, 32, 0.3); /* гірчичне напівпрозоре */
+    color: rgba(255, 0, 0, 0.3);
     cursor: pointer;
-    transition: color 0.3s ease;
 }
 
     .heart-button.filled {
-        color: rgb(218, 165, 32); /* гірчичне */
+        color: red;
     }
 
-.two-columns {
-    display: flex;
-    gap: 2rem;
-    justify-content: space-between;
+hr {
+    border: none;
+    border-top: 2px solid white;
+    margin: 20px 0;
 }
 
-    .two-columns > div {
-        flex: 1;
+.section-flex {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+    .section-flex ul {
+        padding-left: 20px;
     }
 
-.comments-button-container {
+.placeholder-diagram {
+    text-align: center;
+    opacity: 0.6;
+    font-size: 0.9rem;
+    flex: 1;
+}
+
+.recipe-section h3,
+.comments-section h3 {
+    text-align: center;
+    font-weight: bold;
+}
+
+.recipe-section p {
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.comments-header {
     display: flex;
     justify-content: center;
-    margin-top: 1rem;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
-.comments-button {
-    background-color: #333;
+.add-comment-button {
+    background-color: #a47551; /* какао */
     color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
+    border: none;
+    border-radius: 50%;
+    padding: 8px 14px;
+    font-size: 24px;
+    cursor: pointer;
     text-decoration: none;
+}
+
+.comment-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.comment-card {
+    background-color: #a47551;
+    color: white;
+    border-radius: 15px;
+    padding: 15px;
+    width: 250px;
+}
+
+.comment-rating {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Модальне вікно */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fef6e4;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%;
+    border-radius: 10px;
+}
+
+.close-modal {
+    color: #333;
+    float: right;
+    font-size: 24px;
     font-weight: bold;
-    transition: background-color 0.3s;
     cursor: pointer;
 }
 
-    .comments-button:hover {
-        background-color: #555;
-    }
-
-@media (max-width: 768px) {
-    .dish-details-container {
-        flex-direction: column;
-    }
-
-    .image-side,
-    .info-side {
-        flex: none;
-        width: 100%;
-        height: auto;
-    }
-
-    .two-columns {
-        flex-direction: column;
-    }
+.open-modal-btn {
+    background-color: #a67c52; /* колір какао */
+    border: none;
+    color: white;
+    font-size: 24px;
+    border-radius: 50%;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    position: absolute;
+    right: 2rem;
 }

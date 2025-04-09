@@ -35,17 +35,19 @@ namespace FoodAppMVC.WebMVC.Controllers
 
             if (_context.Users.Any(u => u.Email == model.Email))
             {
-                ModelState.AddModelError("Email", "Користувач з такою електронною поштою вже існує.");
+                ModelState.AddModelError("Email", "A user with this email already exists.");
                 return View(model);
             }
 
+            var isAdmin = model.Email.ToLower() == "yevgieniia.riabichenko@gmail.com";
+
             var user = new User
             {
-                Username = model.Username,
+                Username = isAdmin ? "admin" : model.Username,
                 Email = model.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
                 RegistrationDate = DateTime.Now,
-                Role = model.Role
+                Role = isAdmin ? "Admin" : "Visitor"
             };
 
             _context.Users.Add(user);
@@ -73,7 +75,7 @@ namespace FoodAppMVC.WebMVC.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
             {
-                ModelState.AddModelError("Email", "Невірна електронна пошта або пароль.");
+                ModelState.AddModelError("Email", "Invalid email or password.");
                 return View(model);
             }
 
@@ -124,9 +126,8 @@ namespace FoodAppMVC.WebMVC.Controllers
                 IsFavorite = true
             }).ToList();
 
-            return View(model); // 👈 Сюди має йти model типу List<DishViewModel>
+            return View(model);
         }
-
 
         [Authorize]
         [HttpPost]
@@ -209,6 +210,5 @@ namespace FoodAppMVC.WebMVC.Controllers
         {
             return View();
         }
-
     }
 }

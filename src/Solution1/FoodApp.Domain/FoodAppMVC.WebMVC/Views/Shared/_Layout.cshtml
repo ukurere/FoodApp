@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,8 +12,6 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
-    <!-- Custom styles -->
     <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/FoodAppMVC.WebMVC.styles.css" asp-append-version="true" />
 </head>
@@ -21,13 +19,9 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-light bg-success bg-opacity-75 border-bottom shadow-sm mb-3">
             <div class="container-fluid d-flex align-items-center">
+                <button id="menu-toggle" class="burger-icon">&#9776;</button>
 
-                <!-- Іконка бургер-меню -->
-                <button id="menu-toggle" class="burger-icon">
-                    &#9776;
-                </button>
-
-                <a class="navbar-brand text-white ms-2" asp-controller="Home" asp-action="Index" style="font-family: 'Pattaya', sans-serif;">
+                <a class="navbar-brand text-white ms-2" asp-controller="Dishes" asp-action="Index" style="font-family: 'Pattaya', sans-serif;">
                     Healthy Harmony
                 </a>
 
@@ -38,10 +32,10 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Home" asp-action="Index">Головна</a>
+                            <a class="nav-link text-white" asp-controller="Dishes" asp-action="Index">Choose Dish</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Home" asp-action="Privacy">Політика</a>
+                            <a class="nav-link text-white" asp-controller="Statistics" asp-action="Index">Statistics</a>
                         </li>
                     </ul>
 
@@ -49,17 +43,17 @@
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Привіт, @User.Identity.Name!
+                                <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    Hello, @User.Identity.Name!
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Favorites">Обране</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Comments">Мої коментарі</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Ratings">Мої оцінки</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Profile">Профіль</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Favorites">Favorites</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Comments">My Comments</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Ratings">My Ratings</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Profile">Profile</a></li>
                                     <li>
                                         <form asp-controller="Users" asp-action="Logout" method="post" class="dropdown-item m-0 p-0">
-                                            <button type="submit" class="btn btn-link text-start w-100">Вийти</button>
+                                            <button type="submit" class="btn btn-link text-start w-100">Logout</button>
                                         </form>
                                     </li>
                                 </ul>
@@ -68,10 +62,10 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-controller="Users" asp-action="Login">Вхід</a>
+                                <a class="nav-link text-white" asp-controller="Users" asp-action="Login">Login</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-controller="Users" asp-action="Register">Реєстрація</a>
+                                <a class="nav-link text-white" asp-controller="Users" asp-action="Register">Register</a>
                             </li>
                         }
                     </ul>
@@ -80,18 +74,16 @@
         </nav>
     </header>
 
-    <!-- Бокове меню користувача -->
     <div id="user-sidebar" class="user-sidebar">
         <button id="menu-close" class="close-btn">&times;</button>
-        <h5>Меню користувача</h5>
+        <h5>User Menu</h5>
         <ul>
-            <li><a href="/Users/Favorites">💚 Переглянути обране</a></li>
-            <li><a href="/Users/Comments">💬 Переглянути свої коментарі</a></li>
-            <li><a href="/Users/Ratings">⭐ Переглянути свої оцінки</a></li>
-            <li><a href="/Users/Profile">🧍 Профіль</a></li>
+            <li><a href="/Users/Favorites">💚 View Favorites</a></li>
+            <li><a href="/Users/Comments">💬 My Comments</a></li>
+            <li><a href="/Users/Ratings">⭐ My Ratings</a></li>
+            <li><a href="/Users/Profile">🧍 Profile</a></li>
         </ul>
     </div>
-
 
     <main class="main-full">
         @RenderBody()
@@ -99,11 +91,10 @@
 
     <footer class="border-top text-muted mt-5 py-3 bg-light text-center">
         <div class="container">
-            &copy; 2025 - Healthy Harmony | <a asp-controller="Home" asp-action="Privacy">Політика конфіденційності</a>
+            &copy; 2025 - Healthy Harmony
         </div>
     </footer>
 
-    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

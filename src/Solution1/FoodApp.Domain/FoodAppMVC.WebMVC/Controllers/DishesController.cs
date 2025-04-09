@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using FoodApp.Infrastructure;
-using FoodAppMVC.WebMVC.Models;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using FoodApp.Infrastructure;
+using FoodApp.Domain.Entities;
+using FoodAppMVC.WebMVC.Models;
 
 namespace FoodAppMVC.WebMVC.Controllers
 {
@@ -92,23 +93,106 @@ namespace FoodAppMVC.WebMVC.Controllers
             }
 
             ViewBag.IsFavorite = isFavorite;
+
+            // Додати завантаження коментарів та рейтингів
+            var comments = await _context.Comments
+                .Where(c => c.DishID == id)
+                .Include(c => c.User)
+                .ToListAsync();
+
+            var ratings = await _context.Ratings
+                .Where(r => r.DishID == id)
+                .ToListAsync();
+
+            var commentViewModels = comments.Select(comment =>
+            {
+                var rating = ratings.FirstOrDefault(r => r.UserID == comment.UserID && r.DishID == id);
+                return new CommentWithRatingViewModel
+                {
+                    Text = comment.Text,
+                    AuthorName = comment.User.Username,
+                    RatingValue = rating?.RatingValue ?? 0
+                };
+            }).ToList();
+
+            ViewBag.Comments = commentViewModels;
+
             return View(dish);
         }
 
-        [HttpGet]
+
         [AllowAnonymous]
         public async Task<IActionResult> Comments(int id)
         {
-            var dish = await _context.Dishes
-                .Include(d => d.Comments)
-                .ThenInclude(c => c.User)
-                .FirstOrDefaultAsync(d => d.DishId == id);
+            var comments = await _context.Comments
+                .Where(c => c.DishID == id)
+                .Include(c => c.User)
+                .ToListAsync();
 
-            if (dish == null)
-                return NotFound();
+            var ratings = await _context.Ratings
+                .Where(r => r.DishID == id)
+                .ToListAsync();
 
-            return View(dish);
+            var commentViewModels = comments.Select(comment =>
+            {
+                var rating = ratings.FirstOrDefault(r => r.UserID == comment.UserID && r.DishID == id);
+                return new CommentWithRatingViewModel
+                {
+                    Text = comment.Text,
+                    AuthorName = comment.User.Username,
+                    RatingValue = rating?.RatingValue ?? 0
+                };
+            }).ToList();
+
+            ViewBag.DishId = id;
+
+            return View(commentViewModels);
         }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult AddComment(int dishId)
+        {
+            var model = new AddCommentViewModel { DishId = dishId };
+            return View(model);
+        }
+
+
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddComment(AddCommentViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var comment = new Comment
+            {
+                DishID = model.DishId,
+                UserID = userId,
+                Text = model.Text,
+                DatePosted = DateTime.UtcNow
+            };
+
+            var rating = new Rating
+            {
+                DishID = model.DishId,
+                UserID = userId,
+                RatingValue = model.RatingValue
+            };
+
+            _context.Comments.Add(comment);
+            _context.Ratings.Add(rating); // додати новий рейтинг завжди
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Comments", new { id = model.DishId });
+        }
+
+
+
 
         [Authorize]
         public async Task<IActionResult> Favorites()
@@ -133,6 +217,5 @@ namespace FoodAppMVC.WebMVC.Controllers
 
             return View(model);
         }
-
     }
 }
