@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using FoodApp.Domain.Entities;
+using FoodApp.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using FoodApp.Infrastructure;
-using Microsoft.AspNetCore.Authorization;
 
 namespace FoodAppMVC.WebMVC.Controllers
 {
@@ -20,34 +21,27 @@ namespace FoodAppMVC.WebMVC.Controllers
             _context = context;
         }
 
-        // GET: Comments
         public async Task<IActionResult> Index()
         {
-            var foodAppContext = _context.Comments.Include(c => c.Dish).Include(c => c.User);
+            var foodAppContext = _context.Comments
+                .Include(c => c.Dish)
+                .Include(c => c.User);
             return View(await foodAppContext.ToListAsync());
         }
 
-        // GET: Comments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var comment = await _context.Comments
                 .Include(c => c.Dish)
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
+                .FirstOrDefaultAsync(m => m.CommentId == id);
 
-            return View(comment);
+            return comment == null ? NotFound() : View(comment);
         }
 
-        // GET: Comments/Create
         public IActionResult Create()
         {
             ViewData["DishID"] = new SelectList(_context.Dishes, "DishId", "Name");
@@ -55,109 +49,77 @@ namespace FoodAppMVC.WebMVC.Controllers
             return View();
         }
 
-        // POST: Comments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CommentId,UserID,DishID,Text,DatePosted,Id")] Comment comment)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(comment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["DishID"] = new SelectList(_context.Dishes, "DishId", "Name", comment.DishID);
-            ViewData["UserID"] = new SelectList(_context.Users, "UserId", "Email", comment.UserID);
-            return View(comment);
+            if (!ModelState.IsValid)
+                return View(comment);
+
+            _context.Add(comment);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Comments/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var comment = await _context.Comments.FindAsync(id);
             if (comment == null)
-            {
                 return NotFound();
-            }
+
             ViewData["DishID"] = new SelectList(_context.Dishes, "DishId", "Name", comment.DishID);
             ViewData["UserID"] = new SelectList(_context.Users, "UserId", "Email", comment.UserID);
             return View(comment);
         }
 
-        // POST: Comments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CommentId,UserID,DishID,Text,DatePosted,Id")] Comment comment)
         {
-            if (id != comment.Id)
-            {
+            if (id != comment.CommentId)
                 return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(comment);
+
+            try
+            {
+                _context.Update(comment);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CommentExists(comment.CommentId))
+                    return NotFound();
+                throw;
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(comment);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CommentExists(comment.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["DishID"] = new SelectList(_context.Dishes, "DishId", "Name", comment.DishID);
-            ViewData["UserID"] = new SelectList(_context.Users, "UserId", "Email", comment.UserID);
-            return View(comment);
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Comments/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var comment = await _context.Comments
                 .Include(c => c.Dish)
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
+                .FirstOrDefaultAsync(m => m.CommentId == id);
 
-            return View(comment);
+            return comment == null ? NotFound() : View(comment);
         }
 
-        // POST: Comments/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var comment = await _context.Comments.FindAsync(id);
             if (comment != null)
-            {
                 _context.Comments.Remove(comment);
-            }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -165,7 +127,60 @@ namespace FoodAppMVC.WebMVC.Controllers
 
         private bool CommentExists(int id)
         {
-            return _context.Comments.Any(e => e.Id == id);
+            return _context.Comments.Any(e => e.CommentId == id);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteOwn(int id)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var comment = await _context.Comments.FirstOrDefaultAsync(c => c.CommentId == id && c.UserID == userId);
+
+            if (comment == null)
+                return Unauthorized();
+
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Report(int commentId, string reason)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            // Перевірка, чи коментар існує
+            var commentExists = await _context.Comments.AnyAsync(c => c.CommentId == commentId);
+            if (!commentExists)
+                return NotFound("Comment does not exist.");
+
+            // Перевірка, чи вже є скарга від цього користувача
+            var alreadyReported = await _context.CommentReports
+                .AnyAsync(r => r.CommentId == commentId && r.ReporterId == userId);
+
+            if (alreadyReported)
+                return BadRequest("You already reported this comment.");
+
+            // Створення скарги
+            var report = new CommentReport
+            {
+                CommentId = commentId,
+                ReporterId = userId,
+                ReportedAt = DateTime.UtcNow,
+                Reason = reason
+            };
+
+            try
+            {
+                _context.CommentReports.Add(report);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest("Database update error: " + ex.InnerException?.Message);
+            }
+
+            return Ok();
         }
     }
 }

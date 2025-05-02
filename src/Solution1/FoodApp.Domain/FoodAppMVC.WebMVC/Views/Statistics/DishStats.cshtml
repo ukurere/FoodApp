@@ -1,0 +1,64 @@
+﻿@{
+    ViewData["Title"] = "Dish Statistics";
+}
+
+<h2>Dish-Specific Statistics</h2>
+
+<form class="mb-3">
+    <label>Dish:</label>
+    <select id="dishSelect" class="form-control" asp-items="ViewBag.Dishes"></select>
+
+    <label>Start Date:</label>
+    <input type="date" id="startDate" class="form-control" />
+
+    <label>End Date:</label>
+    <input type="date" id="endDate" class="form-control" />
+
+    <button type="button" class="btn btn-primary mt-2" onclick="loadDishStats()">Load Stats</button>
+</form>
+
+<div id="likesChart" style="width: 100%; height: 400px;"></div>
+<div id="commentsChart" style="width: 100%; height: 400px;"></div>
+<div id="ratingChart" style="width: 100%; height: 400px;"></div>
+
+@section Scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load('current', { packages: ['corechart'] });
+
+        function drawSingleChart(containerId, title, value, color) {
+            const data = google.visualization.arrayToDataTable([
+                ['Metric', 'Value'],
+                [title, value]
+            ]);
+
+            const options = {
+                title: title,
+                colors: [color],
+                legend: 'none'
+            };
+
+            const chart = new google.visualization.ColumnChart(document.getElementById(containerId));
+            chart.draw(data, options);
+        }
+
+        async function loadDishStats() {
+            const dishId = document.getElementById("dishSelect").value;
+            const start = document.getElementById("startDate").value;
+            const end = document.getElementById("endDate").value;
+
+            const params = new URLSearchParams();
+            if (start) params.append("startDate", start);
+            if (end) params.append("endDate", end);
+
+            const response = await fetch(`/Statistics/DishStatsData?dishId=${dishId}&${params.toString()}`);
+            const result = await response.json();
+
+            drawSingleChart('likesChart', 'Likes', result.likes, '#e74c3c');
+            drawSingleChart('commentsChart', 'Comments', result.comments, '#3498db');
+            drawSingleChart('ratingChart', 'Avg. Rating', result.averageRating, '#f1c40f');
+        }
+
+        google.charts.setOnLoadCallback(() => { });
+    </script>
+}

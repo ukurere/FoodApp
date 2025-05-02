@@ -8,7 +8,7 @@ namespace FoodApp.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Comment> builder)
         {
-            builder.HasKey(c => c.Id);
+            builder.HasKey(c => c.CommentId);
             builder.Property(c => c.Text).IsRequired().HasMaxLength(500);
             builder.Property(c => c.DatePosted).HasDefaultValueSql("GETDATE()");
 

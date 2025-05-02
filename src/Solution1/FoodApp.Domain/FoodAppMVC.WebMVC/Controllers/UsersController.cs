@@ -210,5 +210,13 @@ namespace FoodAppMVC.WebMVC.Controllers
         {
             return View();
         }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Index()
+        {
+            var users = await _context.Users.ToListAsync();
+            return View(users);
+        }
+
     }
 }

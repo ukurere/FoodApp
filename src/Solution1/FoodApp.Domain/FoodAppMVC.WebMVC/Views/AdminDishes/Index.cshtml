@@ -1,0 +1,34 @@
+﻿@model List<Dish>
+
+@{
+    ViewData["Title"] = "Manage Dishes";
+}
+
+<h2>Manage Dishes</h2>
+
+<a class="btn btn-success mb-3" asp-action="Create">➕ Add Dish</a>
+
+<div class="row">
+    @foreach (var dish in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="@dish.ImagePath" class="card-img-top" alt="@dish.Name" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">@dish.Name</h5>
+                    <p class="card-text text-truncate">
+                        @dish.Recipe?.Substring(0, Math.Min(100, dish.Recipe.Length))...
+                    </p>
+                    <p class="card-text"><strong>Type:</strong> @dish.Type</p>
+                    <p class="card-text"><strong>Time:</strong> @dish.PreparationTimeMinutes min</p>
+                    <div class="d-flex justify-content-end">
+                        <a asp-action="Edit" asp-route-id="@dish.DishId" class="btn btn-warning me-2">✏️ Edit</a>
+                        <form asp-action="Delete" method="post" asp-route-id="@dish.DishId">
+                            <button type="submit" class="btn btn-danger">❌ Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -19,6 +19,8 @@ namespace FoodApp.Infrastructure
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<DishIngredient> DishIngredients { get; set; }
 
+        public DbSet<CommentReport> CommentReports { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
@@ -28,6 +30,7 @@ namespace FoodApp.Infrastructure
             modelBuilder.ApplyConfiguration(new CommentEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new RatingEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new DishIngredientEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new CommentReportEntityTypeConfiguration());
             modelBuilder.Entity<User>(entity =>
             {
                 entity.Property(u => u.Role)

@@ -15,15 +15,12 @@
 
     <div class="dish-info">
         <div class="dish-content">
-
             <div class="header-section">
                 <h1 class="dish-name">@Model.Name</h1>
                 <div class="dish-meta">
                     <span class="dish-type">@Model.Type</span>
                     <span class="dish-time">@Model.PreparationTimeMinutes min</span>
-                    <button class="heart-button @(isFavorite ? "filled" : "")" data-dish-id="@Model.DishId">
-                        ❤️
-                    </button>
+                    <button class="heart-button @(isFavorite ? "filled" : "")" data-dish-id="@Model.DishId">❤️</button>
                 </div>
             </div>
 
@@ -54,13 +51,29 @@
             <div class="comments-section">
                 <div class="comments-header">
                     <h3>Comments</h3>
-                    <a class="add-comment-button" href="@Url.Action("AddComment", "Dishes", new { dishId = Model.DishId })">+</a>
+                    <button type="button" class="open-modal-btn">+</button>
                 </div>
 
                 <div class="comment-cards">
                     @foreach (var comment in comments)
                     {
                         <div class="comment-card">
+                            <div class="menu-container">
+                                <button type="button" class="menu-dots" onclick="toggleMenu(this)">
+                                    <span></span><span></span><span></span>
+                                </button>
+                                <div class="action-menu d-none">
+                                    @if (comment.IsOwnComment)
+                                    {
+                                        <form asp-controller="Comments" asp-action="DeleteOwn" method="post">
+                                            <input type="hidden" name="id" value="@comment.CommentId" />
+                                            <button type="submit">Delete</button>
+                                        </form>
+                                    }
+                                    <button type="button" onclick="openReportModal(@comment.CommentId)">Report</button>
+                                </div>
+                            </div>
+
                             <div class="comment-rating">
                                 @for (int i = 1; i <= 5; i++)
                                 {
@@ -77,66 +90,107 @@
     </div>
 </div>
 
-<button class="open-modal-btn">+</button>
-
-<!-- Модальне вікно -->
+<!-- ✅ Модалка додавання коментаря -->
 <div id="addCommentModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
-
         <form asp-action="AddComment" method="post">
             <input type="hidden" name="DishId" value="@Model.DishId" />
-
             <div class="form-group">
                 <label for="Text">Comment</label>
                 <textarea name="Text" class="form-control" required></textarea>
             </div>
-
             <div class="form-group">
                 <label for="RatingValue">Rating</label>
                 <select name="RatingValue" class="form-control" required>
-                    <option value="">Select rating</option>
+                    <option value="">Select</option>
                     @for (int i = 1; i <= 5; i++)
                     {
                         <option value="@i">@i</option>
                     }
                 </select>
             </div>
-
             <button type="submit" class="main-button">Submit</button>
         </form>
     </div>
 </div>
 
+<!-- ✅ Модалка скарги -->
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <span class="close-report-modal">&times;</span>
+        <form id="reportForm">
+            <input type="hidden" id="report-comment-id" name="commentId" />
+            <div class="form-group">
+                <label for="Reason">Choose reason</label>
+                <select name="reason" id="report-reason" class="form-control" required>
+                    <option value="">Select reason</option>
+                    <option value="Offensive">Offensive content</option>
+                    <option value="Spam">Spam or misleading</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <button type="submit" class="main-button">Report</button>
+        </form>
+    </div>
+</div>
 
 @section Scripts {
     <script>
-        document.querySelector(".heart-button")?.addEventListener("click", function () {
-            const btn = this;
-            const dishId = btn.getAttribute("data-dish-id");
+        function toggleMenu(btn) {
+            document.querySelectorAll(".action-menu").forEach(menu => menu.classList.add("d-none"));
+            const menu = btn.nextElementSibling;
+            menu.classList.toggle("d-none");
+        }
 
-            fetch(`/FavoriteDishes/Toggle?dishId=${dishId}`, { method: "POST" })
-                .then(res => {
-                    if (res.ok) btn.classList.toggle("filled");
-                });
-        });
-    </script>
+        function openReportModal(commentId) {
+            const modal = document.getElementById("reportModal");
+            document.getElementById("report-comment-id").value = commentId;
+            modal.style.display = "flex";
+        }
 
-    <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const modal = document.getElementById("addCommentModal");
-            const openBtn = document.querySelector(".open-modal-btn");
-            const closeBtn = document.querySelector(".close-modal");
+            const addModal = document.getElementById("addCommentModal");
+            const reportModal = document.getElementById("reportModal");
 
-            openBtn?.addEventListener("click", () => modal.style.display = "block");
-            closeBtn?.addEventListener("click", () => modal.style.display = "none");
+            document.querySelector(".open-modal-btn").addEventListener("click", () => {
+                addModal.style.display = "flex";
+            });
 
-            window.addEventListener("click", function (event) {
-                if (event.target === modal) {
-                    modal.style.display = "none";
+            document.querySelector(".close-modal").addEventListener("click", () => {
+                addModal.style.display = "none";
+            });
+
+            document.querySelector(".close-report-modal").addEventListener("click", () => {
+                reportModal.style.display = "none";
+            });
+
+            window.addEventListener("click", function (e) {
+                if (e.target === addModal) addModal.style.display = "none";
+                if (e.target === reportModal) reportModal.style.display = "none";
+            });
+
+            document.getElementById("reportForm").addEventListener("submit", async function (e) {
+                e.preventDefault();
+                const commentId = document.getElementById("report-comment-id").value;
+                const reason = document.getElementById("report-reason").value;
+
+                const response = await fetch("/Comments/Report", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `commentId=${encodeURIComponent(commentId)}&reason=${encodeURIComponent(reason)}`
+                });
+
+                if (response.ok) {
+                    alert("Reported successfully.");
+                    reportModal.style.display = "none";
+                } else {
+                    const text = await response.text();
+                    alert("Error: " + text);
                 }
             });
         });
     </script>
 }
-

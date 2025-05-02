@@ -3,7 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - FoodAppMVC.WebMVC</title>
+    @{
+        var title = ViewData["Title"] as string ?? "Untitled";
+    }
+    <title>@title - FoodAppMVC.WebMVC</title>
+
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -76,14 +80,28 @@
 
     <div id="user-sidebar" class="user-sidebar">
         <button id="menu-close" class="close-btn">&times;</button>
-        <h5>User Menu</h5>
-        <ul>
-            <li><a href="/Users/Favorites">💚 View Favorites</a></li>
-            <li><a href="/Users/Comments">💬 My Comments</a></li>
-            <li><a href="/Users/Ratings">⭐ My Ratings</a></li>
-            <li><a href="/Users/Profile">🧍 Profile</a></li>
-        </ul>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <h5>Admin Menu</h5>
+            <ul>
+                <li><a href="/AdminDishes">🍽 Manage Dishes</a></li>
+                <li><a href="/Users">👥 Users</a></li>
+                <li><a href="/AdminComplaints">⚠️ Complaints</a></li>
+            </ul>
+        }
+        else
+        {
+            <h5>User Menu</h5>
+            <ul>
+                <li><a href="/Users/Favorites">💚 View Favorites</a></li>
+                <li><a href="/Users/Comments">💬 My Comments</a></li>
+                <li><a href="/Users/Ratings">⭐ My Ratings</a></li>
+                <li><a href="/Users/Profile">🧍 Profile</a></li>
+            </ul>
+        }
     </div>
+
 
     <main class="main-full">
         @RenderBody()

@@ -13,6 +13,10 @@ namespace FoodApp.Infrastructure.Configurations
             builder.Property(d => d.PreparationTimeMinutes).IsRequired();
             builder.Property(d => d.Type).HasMaxLength(50);
             builder.Property(d => d.Recipe).IsRequired();
+            builder.Property(d => d.Proteins).HasColumnType("decimal(5,2)");
+            builder.Property(d => d.Fats).HasColumnType("decimal(5,2)");
+            builder.Property(d => d.Carbohydrates).HasColumnType("decimal(5,2)");
+
         }
     }
 }

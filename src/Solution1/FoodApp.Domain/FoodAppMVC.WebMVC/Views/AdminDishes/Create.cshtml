@@ -1,0 +1,85 @@
+﻿@if (ViewBag.Ingredients == null)
+{
+    <div class="alert alert-danger">
+        <strong>ERROR:</strong> Ingredients are missing (ViewBag.Ingredients is null)!
+    </div>
+}
+else
+{
+    <div class="alert alert-success">
+        Ingredients loaded: @(((IEnumerable<SelectListItem>)ViewBag.Ingredients).Count()) items
+    </div>
+}
+
+
+@model FoodAppMVC.WebMVC.Models.AddDishViewModel
+
+@{
+    ViewData["Title"] = "Add New Dish";
+}
+
+<h2>Add New Dish</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Type" class="form-label"></label>
+        <input asp-for="Type" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PreparationTimeMinutes" class="form-label"></label>
+        <input asp-for="PreparationTimeMinutes" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Recipe" class="form-label"></label>
+        <textarea asp-for="Recipe" class="form-control"></textarea>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label asp-for="Calories" class="form-label"></label>
+            <input asp-for="Calories" class="form-control" />
+        </div>
+        <div class="col">
+            <label asp-for="Proteins" class="form-label"></label>
+            <input asp-for="Proteins" class="form-control" />
+        </div>
+        <div class="col">
+            <label asp-for="Fats" class="form-label"></label>
+            <input asp-for="Fats" class="form-control" />
+        </div>
+        <div class="col">
+            <label asp-for="Carbohydrates" class="form-label"></label>
+            <input asp-for="Carbohydrates" class="form-control" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ingredients</label>
+        @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.Ingredients)
+        {
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="SelectedIngredientIds" value="@item.Value" id="ingr_@item.Value" />
+                <label class="form-check-label" for="ingr_@item.Value">@item.Text</label>
+            </div>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ImageFile" class="form-label">Image</label>
+        <input type="file" asp-for="ImageFile" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Dish</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

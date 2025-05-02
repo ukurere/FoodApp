@@ -7,5 +7,7 @@
         public string AuthorName { get; set; }
         public string? AuthorAvatarUrl { get; set; }
         public int RatingValue { get; set; }
+        public bool IsOwnComment { get; set; } 
+        public int CommentId { get; set; }  
     }
 }

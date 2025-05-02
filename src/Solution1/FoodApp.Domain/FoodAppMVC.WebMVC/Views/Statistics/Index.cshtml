@@ -1,0 +1,114 @@
+﻿@{
+    ViewData["Title"] = "Dish Statistics";
+}
+
+<h2>Top 5 Most Popular Dishes</h2>
+
+<div class="mb-3">
+    <label>Start Date:</label>
+    <input type="date" id="startDate" />
+    <label class="ms-2">End Date:</label>
+    <input type="date" id="endDate" />
+    <button class="btn btn-primary ms-2" onclick="loadStats()">Load Stats</button>
+    <a asp-action="DishStats" class="btn btn-secondary ms-2">Dish-wise Statistics</a>
+</div>
+
+<div class="mb-4">
+    <h4>Top 5 by Likes</h4>
+    <div id="likes_chart" style="width: 100%; height: 400px;"></div>
+</div>
+
+<div class="mb-4">
+    <h4>Top 5 by Comments</h4>
+    <div id="comments_chart" style="width: 100%; height: 400px;"></div>
+</div>
+
+<div class="mb-4">
+    <h4>Top 5 by Average Rating</h4>
+    <div id="ratings_chart" style="width: 100%; height: 400px;"></div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load("current", { packages: ["corechart"] });
+
+        async function loadStats() {
+            const start = document.getElementById("startDate").value;
+            const end = document.getElementById("endDate").value;
+
+            const params = new URLSearchParams();
+            if (start) params.append("startDate", start);
+            if (end) params.append("endDate", end);
+
+            const response = await fetch(`/Statistics/PopularDishes?${params.toString()}`);
+            const data = await response.json();
+
+            drawLikesChart(data);
+            drawCommentsChart(data);
+            drawRatingsChart(data);
+        }
+
+        function drawLikesChart(stats) {
+            const chartData = [["Dish", "Likes"]];
+            stats
+                .sort((a, b) => b.likes - a.likes)
+                .slice(0, 5)
+                .forEach(item => {
+                    chartData.push([item.dishName, item.likes]);
+                });
+
+            const data = google.visualization.arrayToDataTable(chartData);
+            const options = {
+                title: "Likes",
+                colors: ['#e74c3c'],
+                vAxis: { title: "Likes" },
+                hAxis: { title: "Dish Name" }
+            };
+            const chart = new google.visualization.ColumnChart(document.getElementById("likes_chart"));
+            chart.draw(data, options);
+        }
+
+        function drawCommentsChart(stats) {
+            const chartData = [["Dish", "Comments"]];
+            stats
+                .sort((a, b) => b.comments - a.comments)
+                .slice(0, 5)
+                .forEach(item => {
+                    chartData.push([item.dishName, item.comments]);
+                });
+
+            const data = google.visualization.arrayToDataTable(chartData);
+            const options = {
+                title: "Comments",
+                colors: ['#3498db'],
+                vAxis: { title: "Comments" },
+                hAxis: { title: "Dish Name" }
+            };
+            const chart = new google.visualization.ColumnChart(document.getElementById("comments_chart"));
+            chart.draw(data, options);
+        }
+
+        function drawRatingsChart(stats) {
+            const chartData = [["Dish", "Avg Rating"]];
+            stats
+                .sort((a, b) => b.averageRating - a.averageRating)
+                .slice(0, 5)
+                .forEach(item => {
+                    chartData.push([item.dishName, item.averageRating]);
+                });
+
+            const data = google.visualization.arrayToDataTable(chartData);
+            const options = {
+                title: "Average Rating",
+                colors: ['#f1c40f'],
+                vAxis: { title: "Rating" },
+                hAxis: { title: "Dish Name" }
+            };
+            const chart = new google.visualization.ColumnChart(document.getElementById("ratings_chart"));
+            chart.draw(data, options);
+        }
+
+        google.charts.setOnLoadCallback(loadStats);
+    </script>
+}

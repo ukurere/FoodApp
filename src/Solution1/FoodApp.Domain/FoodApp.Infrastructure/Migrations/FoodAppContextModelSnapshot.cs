@@ -22,42 +22,6 @@ namespace FoodApp.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CommentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DatePosted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<int>("DishID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DishID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("Comments");
-                });
-
             modelBuilder.Entity("Dish", b =>
                 {
                     b.Property<int>("DishId")
@@ -66,6 +30,18 @@ namespace FoodApp.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DishId"));
 
+                    b.Property<double>("Calories")
+                        .HasColumnType("float");
+
+                    b.Property<decimal>("Carbohydrates")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("Fats")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -73,6 +49,9 @@ namespace FoodApp.Infrastructure.Migrations
 
                     b.Property<int>("PreparationTimeMinutes")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Proteins")
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<string>("Recipe")
                         .IsRequired()
@@ -145,6 +124,69 @@ namespace FoodApp.Infrastructure.Migrations
                     b.ToTable("FavoriteDishes");
                 });
 
+            modelBuilder.Entity("FoodApp.Domain.Entities.Comment", b =>
+                {
+                    b.Property<int>("CommentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentId"));
+
+                    b.Property<DateTime>("DatePosted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<int>("DishID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("CommentId");
+
+                    b.HasIndex("DishID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("FoodApp.Domain.Entities.CommentReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CommentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ReportedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReporterId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("ReporterId");
+
+                    b.ToTable("CommentReports");
+                });
+
             modelBuilder.Entity("FoodApp.Domain.Entities.Ingredient", b =>
                 {
                     b.Property<int>("IngredientId")
@@ -209,6 +251,9 @@ namespace FoodApp.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DateRated")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("DishID")
                         .HasColumnType("int");
 
@@ -225,25 +270,6 @@ namespace FoodApp.Infrastructure.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("Ratings");
-                });
-
-            modelBuilder.Entity("Comment", b =>
-                {
-                    b.HasOne("Dish", "Dish")
-                        .WithMany("Comments")
-                        .HasForeignKey("DishID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FoodApp.Domain.Entities.User", "User")
-                        .WithMany("Comments")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Dish");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DishIngredient", b =>
@@ -282,6 +308,44 @@ namespace FoodApp.Infrastructure.Migrations
                     b.Navigation("Dish");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FoodApp.Domain.Entities.Comment", b =>
+                {
+                    b.HasOne("Dish", "Dish")
+                        .WithMany("Comments")
+                        .HasForeignKey("DishID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FoodApp.Domain.Entities.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Dish");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FoodApp.Domain.Entities.CommentReport", b =>
+                {
+                    b.HasOne("FoodApp.Domain.Entities.Comment", "Comment")
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FoodApp.Domain.Entities.User", "Reporter")
+                        .WithMany()
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("Reporter");
                 });
 
             modelBuilder.Entity("Rating", b =>

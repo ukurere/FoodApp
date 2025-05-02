@@ -9,4 +9,6 @@ public class Rating : Entity
     public Dish Dish { get; set; }
 
     public int RatingValue { get; set; }
+
+    public DateTime DateRated { get; set; }
 }

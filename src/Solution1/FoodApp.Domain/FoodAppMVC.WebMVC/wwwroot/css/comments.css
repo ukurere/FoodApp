@@ -57,3 +57,32 @@
         height: 40px;
         border-radius: 50%;
     }
+
+.comment-card {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 1rem;
+    border-radius: 15px;
+    position: relative;
+}
+
+.comment-menu-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 5px;
+}
+
+    .comment-menu-button .dot {
+        width: 4px;
+        height: 4px;
+        background-color: white;
+        border-radius: 50%;
+    }
