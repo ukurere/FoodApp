@@ -5,92 +5,134 @@
 
 <link rel="stylesheet" href="~/css/dishes.css" asp-append-version="true" />
 
-<div class="dishes-page-wrapper">
-    <!-- Filter Panel -->
-    <form asp-action="Index" method="get" class="filters-panel">
-        <div class="filter-scroll">
-            <h2>Select Filters</h2>
+<!-- Sidebar Filters -->
+<form asp-action="Index" method="get" class="filters-sidebar" id="filtersSidebar">
+    <button type="button" class="close-btn" onclick="toggleSidebar()">×</button>
+    <h2>Filters</h2>
 
-            <div class="filter-section">
-                <strong>Preparation Time</strong>
-                <select name="SelectedTime">
-                    <option value="">All</option>
-                    @foreach (var time in Model.AllTimes)
-                    {
-                        if (Model.SelectedTime == time)
-                        {
-                            <option value="@time" selected>@time min</option>
-                        }
-                        else
-                        {
-                            <option value="@time">@time min</option>
-                        }
-                    }
-                </select>
-            </div>
+    <div class="filter-section">
+        <label>Preparation Time</label>
+        <select name="SelectedTime">
+            <option value="">All</option>
+            @foreach (var time in Model.AllTimes)
+            {
+                @if (Model.SelectedTime == time)
+                {
+                    <option value="@time" selected>@time min</option>
+                }
+                else
+                {
+                    <option value="@time">@time min</option>
+                }
+            }
+        </select>
+    </div>
 
-            <div class="filter-section">
-                <strong>Type</strong>
-                <select name="SelectedType">
-                    <option value="">All</option>
-                    @foreach (var type in Model.AllTypes)
-                    {
-                        if (Model.SelectedType == type)
-                        {
-                            <option value="@type" selected>@type</option>
-                        }
-                        else
-                        {
-                            <option value="@type">@type</option>
-                        }
-                    }
-                </select>
-            </div>
+    <div class="filter-section">
+        <label>Ingredients</label>
+        <div class="ingredient-list">
+            @foreach (var ingredient in Model.AllIngredients)
+            {
+                <label>
+                    <input type="checkbox" name="selectedIngredients" value="@ingredient"
+                           @(Model.SelectedIngredients?.Contains(ingredient) == true ? "checked" : "") />
+                    @ingredient
+                </label>
+            }
+        </div>
+    </div>
 
-            <div class="filter-section">
-                <strong>Ingredients</strong>
-                <div class="ingredient-list">
-                    @foreach (var ingredient in Model.AllIngredients)
+    <div class="filter-actions">
+        <button type="submit" class="search-button">Apply Filters</button>
+        <a asp-action="Index" class="reset-link">Reset</a>
+    </div>
+</form>
+
+<!-- Main Content -->
+<main class="main-full">
+    <div class="dishes-header">
+        <div class="title-block">
+            <h1>Our Dishes</h1>
+            <p>Select a dish type</p>
+        </div>
+
+        <div class="category-tabs-wrapper">
+            <div class="category-tabs-container">
+                <div class="category-tabs">
+                    <a asp-action="Index" asp-route-SelectedType=""
+                       class="category-tab @(string.IsNullOrEmpty(Model.SelectedType) ? "active" : "")">All</a>
+                    @foreach (var type in new[] { "Breakfast", "Side Dishes", "Pasta", "Salad", "Main Dishes" })
                     {
-                        <label>
-                            <input type="checkbox" name="selectedIngredients" value="@ingredient"
-                            @(Model.SelectedIngredients?.Contains(ingredient) == true ? "checked" : "") />
-                            @ingredient
-                        </label>
+                        <a asp-action="Index" asp-route-SelectedType="@type"
+                           class="category-tab @(Model.SelectedType == type ? "active" : "")">@type</a>
                     }
                 </div>
             </div>
+            <button class="filter-toggle-button" onclick="toggleSidebar()">Filters</button>
         </div>
+    </div>
 
-        <div class="filter-actions d-flex flex-column align-items-start">
-            <button type="submit" class="search-button">Apply Filters</button>
-            <a asp-action="Index" class="text-decoration-underline text-white mt-2" style="font-size: 0.9rem;">Reset Filters</a>
-        </div>
-
-    </form>
-
-    <!-- Dish Cards -->
-    <div class="dish-cards-grid">
-        @foreach (var dish in Model.FilteredDishes)
-        {
-            <div class="dish-card-wrapper">
+    <div class="dishes-page-wrapper">
+        <div class="dish-cards-grid">
+            @foreach (var dish in Model.FilteredDishes)
+            {
                 <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id" class="dish-card">
                     <div class="dish-image-wrapper">
                         <img src="@dish.ImageUrl" alt="@dish.Name" />
-                        @if (dish.IsFavorite)
-                        {
-                            <span class="favorite-icon">❤️</span>
-                        }
+                        <div class="heart-container @(dish.IsFavorite ? "favorited" : "")"
+                             data-dish-id="@dish.Id"
+                             onclick="toggleFavorite(event, this)">
+                            <img class="favorite-heart"
+                                 src="@Url.Content(dish.IsFavorite ? "~/images/heart-filled.png" : "~/images/heart-outline.png")"
+                                 alt="Favorite" />
+                        </div>
                     </div>
-
                     <h5>@dish.Name</h5>
-                    <p class="description">@dish.Description</p>
                     <div class="meta">
                         <span>@dish.Type</span>
                         <span>@dish.CookingTime min</span>
                     </div>
                 </a>
-            </div>
-        }
+            }
+        </div>
     </div>
-</div>
+</main>
+
+@section Scripts {
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('filtersSidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        document.querySelectorAll('.heart-container').forEach(el => {
+            el.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const dishId = el.dataset.dishId;
+
+                const response = await fetch('/Dishes/Toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ dishId: parseInt(dishId) })
+                });
+
+                if (response.ok) {
+                    el.classList.toggle('favorited');
+
+                    const heart = el.querySelector('img');
+                    heart.src = el.classList.contains('favorited') ?
+                        '/images/heart-filled.png' : '/images/heart-outline.png';
+
+                    if (window.location.pathname.includes("Favorites") && !el.classList.contains('favorited')) {
+                        el.closest('.dish-card').remove();
+                    }
+                }
+            });
+        });
+    </script>
+}
+

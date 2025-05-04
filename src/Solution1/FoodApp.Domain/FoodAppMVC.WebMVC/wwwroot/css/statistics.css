@@ -1,0 +1,70 @@
+﻿.stats-title {
+    font-family: 'Pattaya', cursive;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #4b2c1c;
+}
+
+.date-selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    font-size: 1.1rem;
+}
+
+.charts-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1rem 2rem;
+}
+
+.chart-box {
+    flex: 1 1 300px;
+    max-width: 400px;
+    min-width: 280px;
+    background-color: #fffefb;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.chart {
+    width: 100%;
+    height: 300px;
+}
+
+.stats-title {
+    text-align: center;
+    font-family: 'Pattaya', cursive;
+    font-size: 3rem;
+    margin: 2rem 0 1rem;
+    color: #4b2c1c;
+}
+
+.stats-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.charts-row {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1rem 2rem 3rem;
+    flex-wrap: wrap;
+}
+
+.chart-box {
+    width: 320px;
+    height: 320px;
+}

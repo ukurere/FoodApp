@@ -1,39 +1,83 @@
-﻿@using FoodApp.Domain.Entities
-@model List<Dish>
+﻿@model List<DishViewModel>
 
 @{
-    ViewData["Title"] = "Улюблені страви";
+    ViewData["Title"] = "Favorite Dishes";
 }
 
-<h2 class="section-title">Улюблені страви</h2>
+<link rel="stylesheet" href="~/css/dishes.css" asp-append-version="true" />
 
-@if (Model == null || !Model.Any())
-{
-    <div class="empty-favorites-message">
-        <p>У вас ще немає улюблених страв.</p>
-        <a asp-controller="Dishes" asp-action="Index" class="main-button">Перейти до всіх страв</a>
+<main class="main-full">
+    <div class="dishes-header">
+        <div class="title-block">
+            <h1>Your Favorite Dishes</h1>
+        </div>
     </div>
-}
-else
-{
-    <div class="dish-cards-grid">
-        @foreach (var dish in Model)
-        {
-            var imageUrl = $"/images/{dish.Name.ToLower().Replace(" ", "")}.jpg";
 
-            <div class="dish-card">
-                <img src="@imageUrl" alt="@dish.Name" class="dish-card-image" />
-
-                <div class="dish-card-content">
-                    <h5 class="dish-card-title">@dish.Name</h5>
-                    <p class="dish-card-description">@dish.Recipe</p>
-
-                    <form asp-action="Remove" method="post">
-                        <input type="hidden" name="dishId" value="@dish.DishId" />
-                        <button type="submit" class="main-button danger">Видалити з улюблених</button>
-                    </form>
-                </div>
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-favorites-message" style="text-align:center; margin-top:2rem;">
+            <p>You don't have any favorite dishes yet.</p>
+            <a asp-controller="Dishes" asp-action="Index" class="main-button">Browse All Dishes</a>
+        </div>
+    }
+    else
+    {
+        <div class="dishes-page-wrapper">
+            <div class="dish-cards-grid">
+                @foreach (var dish in Model)
+                {
+                    <div class="dish-card" data-dish-id="@dish.Id">
+                        <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id">
+                            <div class="dish-image-wrapper">
+                                <img src="@dish.ImageUrl" alt="@dish.Name" />
+                                <div class="heart-container favorited" data-dish-id="@dish.Id">
+                                    <img class="favorite-heart" src="/images/heart-filled.png" alt="Favorite" />
+                                </div>
+                            </div>
+                            <h5>@dish.Name</h5>
+                            <div class="meta">
+                                <span>@dish.Type</span>
+                                <span>@dish.CookingTime min</span>
+                            </div>
+                        </a>
+                    </div>
+                }
             </div>
-        }
-    </div>
+        </div>
+    }
+</main>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.heart-container').forEach(el => {
+            el.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const dishId = el.dataset.dishId;
+                const card = el.closest('.dish-card');
+
+                const response = await fetch('/Dishes/Toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ dishId: parseInt(dishId) })
+                });
+
+                if (response.ok) {
+                    // Remove card from the DOM
+                    card.remove();
+                    // Optionally check if the list is empty after removal and show message
+                    if (document.querySelectorAll('.dish-card').length === 0) {
+                        document.querySelector('.dishes-page-wrapper').innerHTML =
+                            '<div class="empty-favorites-message" style="text-align:center; margin-top:2rem;">' +
+                            '<p>You don\'t have any favorite dishes yet.</p>' +
+                            '<a href="/Dishes/Index" class="main-button">Browse All Dishes</a>' +
+                            '</div>';
+                    }
+                }
+            });
+        });
+    </script>
 }

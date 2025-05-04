@@ -1,43 +1,87 @@
-﻿@model List<FoodAppMVC.WebMVC.Models.DishViewModel>
+﻿@model List<DishViewModel>
 
 @{
-    ViewData["Title"] = "Favorite dishes";
+    ViewData["Title"] = "Favorite Dishes";
 }
 
 <link rel="stylesheet" href="~/css/dishes.css" asp-append-version="true" />
 
-<div class="dishes-page-wrapper" style="width: 100%;">
-    <div class="container-fluid">
-        <h2 class="mb-4" style="font-family: 'Pattaya', cursive; color: #365b3f;">Your favorite dishes</h2>
+<main class="main-full">
+    <div class="dishes-header">
+        <div class="title-block">
+            <h1>Your Favorite Dishes</h1>
+        </div>
+    </div>
 
-        @if (Model == null || !Model.Any())
-        {
-            <div class="empty-favorites-message">
-                You do not yet have selected dishes 💔
-            </div>
-        }
-        else
-        {
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-favorites-message" style="text-align:center; margin-top:2rem;">
+            <p>You don't have any favorite dishes yet.</p>
+            <a asp-controller="Dishes" asp-action="Index" class="main-button">Browse All Dishes</a>
+        </div>
+    }
+    else
+    {
+        <div class="dishes-page-wrapper">
             <div class="dish-cards-grid">
                 @foreach (var dish in Model)
                 {
-                    <div class="dish-card-wrapper">
-                        <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id" class="dish-card">
+                    <div class="dish-card" data-dish-id="@dish.Id">
+                        <a asp-controller="Dishes" asp-action="Details" asp-route-id="@dish.Id">
                             <div class="dish-image-wrapper">
                                 <img src="@dish.ImageUrl" alt="@dish.Name" />
-                                <span class="favorite-icon">❤️</span>
+                                <div class="heart-container favorited" data-dish-id="@dish.Id">
+                                    <img class="favorite-heart" src="/images/heart-filled.png" alt="Favorite" />
+                                </div>
                             </div>
-
                             <h5>@dish.Name</h5>
-                            <p class="description">@dish.Description</p>
                             <div class="meta">
                                 <span>@dish.Type</span>
-                                <span>@dish.CookingTime хв</span>
+                                <span>@dish.CookingTime min</span>
                             </div>
                         </a>
                     </div>
                 }
             </div>
-        }
-    </div>
-</div>
+        </div>
+    }
+</main>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.heart-container').forEach(el => {
+            el.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const dishId = el.dataset.dishId;
+
+                const response = await fetch('/Dishes/Toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ dishId: parseInt(dishId) })
+                });
+
+                if (response.ok) {
+                    el.classList.toggle('favorited');
+
+                    // Анімація bump
+                    el.classList.remove('bump');
+                    void el.offsetWidth; // Трюк для перезапуску анімації
+                    el.classList.add('bump');
+
+                    const heart = el.querySelector('img');
+                    heart.src = el.classList.contains('favorited') ?
+                        '/images/heart-filled.png' : '/images/heart-outline.png';
+
+                    // Якщо ти на сторінці Favorites — видалити картку
+                    if (window.location.pathname.includes("Favorites") && !el.classList.contains('favorited')) {
+                        el.closest('.dish-card').remove();
+                    }
+                }
+            });
+        });
+    </script>
+}

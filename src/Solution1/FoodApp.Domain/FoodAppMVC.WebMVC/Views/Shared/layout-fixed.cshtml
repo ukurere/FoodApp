@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @{
+        var title = ViewData["Title"] as string ?? "Untitled";
+    }
+    <title>@title - Healthy Harmony</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Poppins&display=swap" rel="stylesheet" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/theme/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/theme/css/owl.carousel.min.css" />
+    <link rel="stylesheet" href="~/theme/css/main.css" />
+    <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/FoodAppMVC.WebMVC.styles.css" asp-append-version="true" />
+
+    <style>
+        html, body {
+            height: 100%;
+            background-color: #fef6e4;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex-grow: 1;
+        }
+
+        header {
+            background-color: white;
+            padding: 10px 0;
+        }
+
+        nav ul li a {
+            font-family: 'Poppins', sans-serif;
+            font-size: 18px;
+            color: #212529;
+            text-decoration: none;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        nav ul li a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0%;
+            height: 2px;
+            background-color: #b8402b;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after,
+        nav ul li.active a::after {
+            width: 100%;
+        }
+
+        .btn-primary-custom {
+            background-color: #b8402b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 2rem;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            border: none;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: #922f20;
+        }
+
+        .dropdown-menu {
+            min-width: auto;
+        }
+
+        .user-menu:hover .dropdown-menu {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="sticky-top">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a asp-controller="Home" asp-action="Index" class="logo d-flex align-items-center text-decoration-none">
+                <img src="~/images/logo.png" alt="Logo" style="height: 30px;" />
+                <h1 class="ms-2 mb-0" style="font-family: 'Poppins', sans-serif; font-weight: bold;">
+                    Healthy <span style="color: #b8402b;">Harmony</span>
+                </h1>
+            </a>
+
+            <nav>
+                <ul class="d-flex align-items-center gap-4 list-unstyled mb-0">
+                    <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Dishes" ? "active" : "")">
+                        <a asp-controller="Dishes" asp-action="Index">Dishes</a>
+                    </li>
+                    <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Statistics" ? "active" : "")">
+                        <a asp-controller="Statistics" asp-action="Index">Statistics</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="d-flex align-items-center gap-2">
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <div class="dropdown user-menu position-relative">
+                        <a class="fw-bold text-dark dropdown-toggle text-decoration-none" href="#" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-family: 'Poppins', sans-serif;">
+                            @User.Identity.Name
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="/Profile">Profile</a></li>
+                            <li><a class="dropdown-item" href="/Favorites">Favorites</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item" href="/Account/Logout">Logout</a></li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a class="btn btn-outline-danger" asp-controller="Users" asp-action="Register">Register</a>
+                    <a class="btn btn-danger" asp-controller="Users" asp-action="Login">Sign in</a>
+                }
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer py-4" style="background-color: #fef6e4;">
+        <div class="container text-center">
+            <div class="text-muted">
+                &copy; 2025 - <strong>Healthy Harmony</strong>. All Rights Reserved
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="~/theme/js/jquery.min.js"></script>
+    <script src="~/theme/js/bootstrap.bundle.min.js"></script>
+    <script src="~/theme/js/owl.carousel.min.js"></script>
+    <script src="~/theme/js/main.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Styles", required: false)
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

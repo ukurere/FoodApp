@@ -4,30 +4,40 @@
     var imageName = Model.Name.ToLower().Replace(" ", "") + ".jpg";
     var isFavorite = ViewBag.IsFavorite as bool? ?? false;
     var comments = ViewBag.Comments as List<CommentWithRatingViewModel> ?? new();
+    var proteins = (double)(ViewBag.Proteins ?? 0.0);
+    var fats = (double)(ViewBag.Fats ?? 0.0);
+    var carbs = (double)(ViewBag.Carbohydrates ?? 0.0);
+    var calories = (double)(ViewBag.Calories ?? 0.0);
+    var userId = ViewBag.UserId as string ?? "";
 }
 
 <link rel="stylesheet" href="~/css/dish-details.css" asp-append-version="true" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="dish-page">
-    <div class="dish-image">
-        <img src="~/images/@imageName" alt="@Model.Name" />
+<div class="dish-wrapper">
+    <div class="dish-title-row">
+        <button class="heart-button" data-dish-id="@Model.DishId" onclick="toggleFavorite(this)">
+            <img src="~/images/@(isFavorite ? "heart-filled.png" : "heart-outline.png")" alt="Favorite" class="heart-icon" />
+        </button>
+        <h1 class="dish-title">@Model.Name</h1>
+        <button class="pdf-button" onclick="window.location.href='/Dishes/ExportToPdf/@Model.DishId'">
+            <img src="~/images/PDF.jpg" alt="PDF" class="pdf-icon" />
+        </button>
     </div>
 
-    <div class="dish-info">
-        <div class="dish-content">
-            <div class="header-section">
-                <h1 class="dish-name">@Model.Name</h1>
-                <div class="dish-meta">
-                    <span class="dish-type">@Model.Type</span>
-                    <span class="dish-time">@Model.PreparationTimeMinutes min</span>
-                    <button class="heart-button @(isFavorite ? "filled" : "")" data-dish-id="@Model.DishId">❤️</button>
-                </div>
+    <div class="dish-main-container">
+        <div class="dish-photo-section">
+            <img src="~/images/@imageName" alt="@Model.Name" class="dish-photo" />
+        </div>
+        <div class="dish-info-section">
+            <div class="dish-meta">
+                <span><strong>Type:</strong> @Model.Type</span>
+                <span><strong>Time:</strong> @Model.PreparationTimeMinutes min</span>
             </div>
+            <hr class="dish-divider" />
 
-            <hr />
-
-            <div class="section-flex">
-                <div>
+            <div class="dish-info-columns">
+                <div class="dish-column">
                     <h4>Ingredients</h4>
                     <ul>
                         @foreach (var di in Model.DishIngredients)
@@ -44,163 +54,79 @@
                             </li>
                         }
                     </ul>
-
-                </div>
-                <div class="placeholder-diagram">Nutrition chart coming soon</div>
-            </div>
-
-            <hr />
-
-            <div class="recipe-section">
-                <h3>Recipe</h3>
-                <p>@Model.Recipe</p>
-            </div>
-
-            <hr />
-
-            <div class="comments-section">
-                <div class="comments-header">
-                    <h3>Comments</h3>
-                    <button type="button" class="open-modal-btn">+</button>
                 </div>
 
-                <div class="comment-cards">
-                    @foreach (var comment in comments)
-                    {
-                        <div class="comment-card">
-                            <div class="menu-container">
-                                <button type="button" class="menu-dots" onclick="toggleMenu(this)">
-                                    <span></span><span></span><span></span>
-                                </button>
-                                <div class="action-menu d-none">
-                                    @if (comment.IsOwnComment)
-                                    {
-                                        <form asp-controller="Comments" asp-action="DeleteOwn" method="post">
-                                            <input type="hidden" name="id" value="@comment.CommentId" />
-                                            <button type="submit">Delete</button>
-                                        </form>
-                                    }
-                                    <button type="button" onclick="openReportModal(@comment.CommentId)">Report</button>
-                                </div>
-                            </div>
+                <div class="dish-column">
+                    <h4>Nutrition</h4>
+                    <ul>
+                        <li>Proteins: @proteins g</li>
+                        <li>Fats: @fats g</li>
+                        <li>Carbs: @carbs g</li>
+                        <li><strong>Total:</strong> @calories kcal</li>
+                    </ul>
+                </div>
 
-                            <div class="comment-rating">
-                                @for (int i = 1; i <= 5; i++)
-                                {
-                                    <span style="color:@(i <= comment.RatingValue ? "#ffcc00" : "#ccc")">★</span>
-                                }
-                            </div>
-                            <p>@comment.Text</p>
-                            <strong>@comment.AuthorName</strong>
-                        </div>
-                    }
+                <div class="dish-column chart-container">
+                    <canvas id="nutrientChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- ✅ Модалка додавання коментаря -->
-<div id="addCommentModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <form asp-action="AddComment" method="post">
-            <input type="hidden" name="DishId" value="@Model.DishId" />
-            <div class="form-group">
-                <label for="Text">Comment</label>
-                <textarea name="Text" class="form-control" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="RatingValue">Rating</label>
-                <select name="RatingValue" class="form-control" required>
-                    <option value="">Select</option>
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        <option value="@i">@i</option>
-                    }
-                </select>
-            </div>
-            <button type="submit" class="main-button">Submit</button>
-        </form>
+    <div class="dish-recipe-section">
+        <h3 class="centered-title">Recipe</h3>
+        <p class="centered-text">@Model.Recipe</p>
     </div>
-</div>
 
-<!-- ✅ Модалка скарги -->
-<div id="reportModal" class="modal">
-    <div class="modal-content">
-        <span class="close-report-modal">&times;</span>
-        <form id="reportForm">
-            <input type="hidden" id="report-comment-id" name="commentId" />
-            <div class="form-group">
-                <label for="Reason">Choose reason</label>
-                <select name="reason" id="report-reason" class="form-control" required>
-                    <option value="">Select reason</option>
-                    <option value="Offensive">Offensive content</option>
-                    <option value="Spam">Spam or misleading</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            <button type="submit" class="main-button">Report</button>
-        </form>
+    <div class="dish-comments-section">
+        <div class="comments-header">
+            <h3 class="centered-title">Comments</h3>
+            <a class="add-comment-link" href="/Comments/Create?dishId=@Model.DishId">Add Comment</a>
+        </div>
+
+        <div class="comments-carousel-scrollable">
+            @foreach (var comment in comments)
+            {
+                <div class="comment-item">
+                    <div class="comment-text">@comment.Text</div>
+                    <div class="comment-meta">Rating: @comment.RatingValue</div>
+                </div>
+            }
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        function toggleMenu(btn) {
-            document.querySelectorAll(".action-menu").forEach(menu => menu.classList.add("d-none"));
-            const menu = btn.nextElementSibling;
-            menu.classList.toggle("d-none");
+        async function toggleFavorite(button) {
+            const dishId = button.getAttribute('data-dish-id');
+            const icon = button.querySelector('img');
+            const isFilled = icon.src.includes("heart-filled.png");
+
+            const response = await fetch(`/Dishes/ToggleFavorite/${dishId}`, { method: 'POST' });
+
+            if (response.ok) {
+                icon.src = isFilled ? '/images/heart-outline.png' : '/images/heart-filled.png';
+            } else {
+                alert("Error updating favorites.");
+            }
         }
 
-        function openReportModal(commentId) {
-            const modal = document.getElementById("reportModal");
-            document.getElementById("report-comment-id").value = commentId;
-            modal.style.display = "flex";
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const addModal = document.getElementById("addCommentModal");
-            const reportModal = document.getElementById("reportModal");
-
-            document.querySelector(".open-modal-btn").addEventListener("click", () => {
-                addModal.style.display = "flex";
-            });
-
-            document.querySelector(".close-modal").addEventListener("click", () => {
-                addModal.style.display = "none";
-            });
-
-            document.querySelector(".close-report-modal").addEventListener("click", () => {
-                reportModal.style.display = "none";
-            });
-
-            window.addEventListener("click", function (e) {
-                if (e.target === addModal) addModal.style.display = "none";
-                if (e.target === reportModal) reportModal.style.display = "none";
-            });
-
-            document.getElementById("reportForm").addEventListener("submit", async function (e) {
-                e.preventDefault();
-                const commentId = document.getElementById("report-comment-id").value;
-                const reason = document.getElementById("report-reason").value;
-
-                const response = await fetch("/Comments/Report", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: `commentId=${encodeURIComponent(commentId)}&reason=${encodeURIComponent(reason)}`
-                });
-
-                if (response.ok) {
-                    alert("Reported successfully.");
-                    reportModal.style.display = "none";
-                } else {
-                    const text = await response.text();
-                    alert("Error: " + text);
-                }
-            });
+        const ctx = document.getElementById('nutrientChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Proteins', 'Fats', 'Carbs'],
+                datasets: [{
+                    data: [@proteins, @fats, @carbs],
+                    backgroundColor: ['#7180AC', '#F4D58D', '#D7263D'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                cutout: '60%',
+                plugins: { legend: { display: false } }
+            }
         });
     </script>
 }

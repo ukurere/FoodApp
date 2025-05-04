@@ -4,31 +4,40 @@
     ViewData["Title"] = "Manage Dishes";
 }
 
-<h2>Manage Dishes</h2>
+<link rel="stylesheet" href="~/css/dishes.css" asp-append-version="true" />
 
-<a class="btn btn-success mb-3" asp-action="Create">➕ Add Dish</a>
+<main class="main-full">
+    <div class="dishes-header">
+        <div class="admin-dishes-header">
+            <h1 class="admin-title">Manage Dishes</h1>
+            <a asp-action="Create" class="add-dish-button">+ Add Dish</a>
+        </div>
+    </div>
 
-<div class="row">
-    @foreach (var dish in Model)
-    {
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <img src="@dish.ImagePath" class="card-img-top" alt="@dish.Name" style="height: 200px; object-fit: cover;">
-                <div class="card-body">
-                    <h5 class="card-title">@dish.Name</h5>
-                    <p class="card-text text-truncate">
-                        @dish.Recipe?.Substring(0, Math.Min(100, dish.Recipe.Length))...
-                    </p>
-                    <p class="card-text"><strong>Type:</strong> @dish.Type</p>
-                    <p class="card-text"><strong>Time:</strong> @dish.PreparationTimeMinutes min</p>
-                    <div class="d-flex justify-content-end">
-                        <a asp-action="Edit" asp-route-id="@dish.DishId" class="btn btn-warning me-2">✏️ Edit</a>
-                        <form asp-action="Delete" method="post" asp-route-id="@dish.DishId">
-                            <button type="submit" class="btn btn-danger">❌ Delete</button>
+    <div class="dishes-page-wrapper">
+        <div class="dish-cards-grid">
+            @foreach (var dish in Model)
+            {
+                var imageName = dish.Name.ToLower().Replace(" ", "") + ".jpg";
+                var imageUrl = Url.Content("~/images/" + imageName);
+
+                <div class="dish-card">
+                    <div class="dish-image-wrapper">
+                        <img src="@imageUrl" alt="@dish.Name" />
+                    </div>
+                    <h5>@dish.Name</h5>
+                    <div class="meta">
+                        <span>@dish.Type</span>
+                        <span>@dish.PreparationTimeMinutes min</span>
+                    </div>
+                    <div class="admin-actions">
+                        <a asp-action="Edit" asp-route-id="@dish.DishId" class="btn edit-btn">Edit</a>
+                        <form asp-action="Delete" asp-route-id="@dish.DishId" method="post" style="display:inline;">
+                            <button type="submit" class="btn delete-btn">Delete</button>
                         </form>
                     </div>
                 </div>
-            </div>
+            }
         </div>
-    }
-</div>
+    </div>
+</main>

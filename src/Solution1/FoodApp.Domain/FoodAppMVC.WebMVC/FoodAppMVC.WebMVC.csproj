@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="compilerconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FoodApp.Domain\FoodApp.Domain.csproj" />
     <ProjectReference Include="..\FoodApp.Infrastructure\FoodApp.Infrastructure.csproj" />
   </ItemGroup>
@@ -24,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="compilerconfig.json" />
     <None Include="wwwroot\theme\img\.DS_Store" />
   </ItemGroup>
 

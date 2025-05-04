@@ -3,15 +3,39 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="hero-container with-bg">
-    <div class="hero-overlay">
-        <h1>Healthy Harmony —<br />your guide to<br />healthy eating</h1>
-        <p>
-            Healthy Harmony is a convenient platform created for those who strive to eat balanced and mindfully.
-            We help you select dishes based on available ingredients or preparation time. Our recipe library includes
-            a wide variety of meals with photos and step-by-step instructions — from quick breakfasts to complete dinners.
-            Make your eating habits easier, healthier, and more delicious with us.
-        </p>
-        <a class="main-button" href="/Dishes">Browse Recipes</a>
+<!-- AOS (для анімацій) -->
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+    AOS.init();
+</script>
+
+<!-- ======= Hero Section ======= -->
+<section id="hero" class="d-flex align-items-center py-5" style="background-color: #fef6e4; overflow: visible;">
+    <div class="container d-flex justify-content-center mt-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0 ps-lg-5">
+                <h1 class="mb-4" style="font-size: 64px; font-family: 'Amatic SC', cursive;" data-aos="fade-up">
+                    Your guide to<br />healthy eating
+                </h1>
+                <p class="mb-4" style="font-size: 18px; font-family: 'Poppins', sans-serif; color: #555;" data-aos="fade-up" data-aos-delay="100">
+                    Healthy Harmony is a convenient platform created for those who strive to eat balanced and mindfully.
+                    We help you select dishes based on available ingredients or preparation time. Our recipe library includes
+                    a wide variety of meals with photos and step-by-step instructions — from quick breakfasts to complete dinners.
+                    Make your eating habits easier, healthier, and more delicious with us.
+                </p>
+                <a href="/Dishes" class="btn btn-danger px-4 py-2" style="border-radius: 2rem; min-width: 200px;" data-aos="fade-up" data-aos-delay="200">
+                    Browse Recipes
+                </a>
+            </div>
+            <div class="col-lg-6 text-center mt-4 mt-lg-0">
+                <img src="~/theme/img/hero-img.png"
+                     class="img-fluid"
+                     alt="Healthy eating image"
+                     style="max-height: 400px;"
+                     data-aos="zoom-out"
+                     data-aos-delay="300" />
+            </div>
+        </div>
     </div>
-</div>
+</section>

@@ -1,46 +1,29 @@
-﻿@model FoodApp.Domain.Entities.Comment
-
+﻿@model FoodAppMVC.WebMVC.Models.AddCommentViewModel
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Add Comment";
 }
 
-<h1>Create</h1>
+<div class="container mt-5">
+    <div class="bg-white p-5 rounded-4 shadow-sm mx-auto" style="max-width: 900px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-center w-100" style="font-family: 'Amatic SC'; font-size: 2.5rem;">Add Comment</h2>
+        </div>
 
-<h4>Comment</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="CommentId" class="control-label"></label>
-                <input asp-for="CommentId" class="form-control" />
-                <span asp-validation-for="CommentId" class="text-danger"></span>
+        <form asp-action="AddComment" asp-controller="Comments">
+            <input type="hidden" asp-for="DishId" />
+
+            <div class="mb-3">
+                <label asp-for="Text" class="form-label"></label>
+                <textarea asp-for="Text" class="form-control"></textarea>
             </div>
-            <div class="form-group">
-                <label asp-for="UserID" class="control-label"></label>
-                <select asp-for="UserID" class ="form-control" asp-items="ViewBag.UserID"></select>
+            <div class="mb-3">
+                <label asp-for="RatingValue" class="form-label"></label>
+                <input asp-for="RatingValue" type="number" min="1" max="5" class="form-control" />
             </div>
-            <div class="form-group">
-                <label asp-for="DishID" class="control-label"></label>
-                <select asp-for="DishID" class ="form-control" asp-items="ViewBag.DishID"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Text" class="control-label"></label>
-                <input asp-for="Text" class="form-control" />
-                <span asp-validation-for="Text" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="text-center">
+                <button type="submit" class="btn btn-success me-2">Submit</button>
+                <a asp-action="Details" asp-controller="Dishes" asp-route-id="@Model.DishId" class="btn btn-secondary">Back to Dish</a>
             </div>
         </form>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

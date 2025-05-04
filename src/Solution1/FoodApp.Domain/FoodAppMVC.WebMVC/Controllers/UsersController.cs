@@ -21,10 +21,7 @@ namespace FoodAppMVC.WebMVC.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult Register() => View();
 
         [HttpPost]
         [AllowAnonymous]
@@ -52,7 +49,6 @@ namespace FoodAppMVC.WebMVC.Controllers
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-
             await SignInUser(user);
 
             return RedirectToAction("Index", "Home");
@@ -60,10 +56,7 @@ namespace FoodAppMVC.WebMVC.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
 
         [HttpPost]
         [AllowAnonymous]
@@ -80,7 +73,6 @@ namespace FoodAppMVC.WebMVC.Controllers
             }
 
             await SignInUser(user);
-
             return RedirectToAction("Index", "Home");
         }
 
@@ -98,17 +90,13 @@ namespace FoodAppMVC.WebMVC.Controllers
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var user = await _context.Users.FindAsync(userId);
 
-            if (user == null)
-                return NotFound();
-
-            return View(user);
+            return user == null ? NotFound() : View(user);
         }
 
         [Authorize]
         public async Task<IActionResult> Favorites()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
             var favoriteDishes = await _context.FavoriteDishes
                 .Where(f => f.UserID == userId)
                 .Include(f => f.Dish)
@@ -149,7 +137,6 @@ namespace FoodAppMVC.WebMVC.Controllers
         public async Task<IActionResult> RemoveFromFavorites(int dishId)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
             var favorite = await _context.FavoriteDishes
                 .FirstOrDefaultAsync(f => f.UserID == userId && f.DishID == dishId);
 
@@ -206,10 +193,7 @@ namespace FoodAppMVC.WebMVC.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult AccessDenied()
-        {
-            return View();
-        }
+        public IActionResult AccessDenied() => View();
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
@@ -218,5 +202,79 @@ namespace FoodAppMVC.WebMVC.Controllers
             return View(users);
         }
 
+        // ------------------- CRUD ACTIONS ------------------------
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult Create() => View();
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create(User user)
+        {
+            if (!ModelState.IsValid)
+                return View(user);
+
+            user.RegistrationDate = DateTime.Now;
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash); // expect plain text
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+            return user == null ? NotFound() : View(user);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            return user == null ? NotFound() : View(user);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(User user)
+        {
+            if (!ModelState.IsValid)
+                return View(user);
+
+            var existing = await _context.Users.FindAsync(user.UserId);
+            if (existing == null)
+                return NotFound();
+
+            existing.Username = user.Username;
+            existing.Email = user.Email;
+            existing.Role = user.Role;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            return user == null ? NotFound() : View(user);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

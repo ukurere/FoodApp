@@ -2,45 +2,81 @@
     ViewData["Title"] = "Dish Statistics";
 }
 
-<h2>Dish-Specific Statistics</h2>
+<style>
+    .stats-title {
+        text-align: center;
+        font-family: 'Amatic SC', cursive;
+        font-size: 3rem;
+        margin-top: 2rem;
+        margin-bottom: 1.5rem;
+        color: #4b2c1c;
+    }
 
-<form class="mb-3">
-    <label>Dish:</label>
-    <select id="dishSelect" class="form-control" asp-items="ViewBag.Dishes"></select>
+    .stats-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
 
-    <label>Start Date:</label>
-    <input type="date" id="startDate" class="form-control" />
+    .charts-row {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding: 0 2rem 3rem;
+    }
 
-    <label>End Date:</label>
-    <input type="date" id="endDate" class="form-control" />
+    .chart-box {
+        flex: 1 1 300px;
+        min-width: 280px;
+        max-width: 300px;
+        height: 250px;
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
 
-    <button type="button" class="btn btn-primary mt-2" onclick="loadDishStats()">Load Stats</button>
-</form>
+<h2 class="stats-title">Dish-Specific Statistics</h2>
 
-<div id="likesChart" style="width: 100%; height: 400px;"></div>
-<div id="commentsChart" style="width: 100%; height: 400px;"></div>
-<div id="ratingChart" style="width: 100%; height: 400px;"></div>
+<div class="stats-controls">
+    <div class="d-flex align-items-center">
+        <label for="dishSelect">Dish:</label>
+        <select id="dishSelect" class="form-control" asp-items="ViewBag.Dishes"></select>
+    </div>
+
+    <div class="d-flex align-items-center">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" class="form-control" />
+    </div>
+
+    <div class="d-flex align-items-center">
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" class="form-control" />
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" onclick="loadDishStats()">Load Stats</button>
+        <button class="btn btn-secondary" onclick="downloadPDF()">Export PDF</button>
+    </div>
+</div>
+
+<div class="charts-row" id="chartContainer">
+    <div class="chart-box"><div id="likesChart" style="width: 100%; height: 100%;"></div></div>
+    <div class="chart-box"><div id="commentsChart" style="width: 100%; height: 100%;"></div></div>
+    <div class="chart-box"><div id="ratingChart" style="width: 100%; height: 100%;"></div></div>
+</div>
 
 @section Scripts {
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         google.charts.load('current', { packages: ['corechart'] });
-
-        function drawSingleChart(containerId, title, value, color) {
-            const data = google.visualization.arrayToDataTable([
-                ['Metric', 'Value'],
-                [title, value]
-            ]);
-
-            const options = {
-                title: title,
-                colors: [color],
-                legend: 'none'
-            };
-
-            const chart = new google.visualization.ColumnChart(document.getElementById(containerId));
-            chart.draw(data, options);
-        }
 
         async function loadDishStats() {
             const dishId = document.getElementById("dishSelect").value;
@@ -51,14 +87,73 @@
             if (start) params.append("startDate", start);
             if (end) params.append("endDate", end);
 
-            const response = await fetch(`/Statistics/DishStatsData?dishId=${dishId}&${params.toString()}`);
+            const response = await fetch(`/Statistics/DishStatsTimeline?dishId=${dishId}&${params.toString()}`);
+            if (!response.ok) {
+                console.error("Failed to fetch data");
+                return;
+            }
+
             const result = await response.json();
 
-            drawSingleChart('likesChart', 'Likes', result.likes, '#e74c3c');
-            drawSingleChart('commentsChart', 'Comments', result.comments, '#3498db');
-            drawSingleChart('ratingChart', 'Avg. Rating', result.averageRating, '#f1c40f');
+            const likesData = result.map(entry => [new Date(entry.date), entry.likes]);
+            const commentsData = result.map(entry => [new Date(entry.date), entry.comments]);
+            const ratingsData = result.map(entry => [new Date(entry.date), entry.averageRating]);
+
+            drawChart('likesChart', 'Likes', likesData, '#e74c3c');
+            drawChart('commentsChart', 'Comments', commentsData, '#3498db');
+            drawChart('ratingChart', 'Avg. Rating', ratingsData, '#f1c40f');
         }
 
-        google.charts.setOnLoadCallback(() => { });
+        function drawChart(containerId, title, dataPoints, color) {
+            const chartData = new google.visualization.DataTable();
+            chartData.addColumn('date', 'Date');
+            chartData.addColumn('number', title);
+            chartData.addRows(dataPoints);
+
+            const options = {
+                title: title,
+                colors: [color],
+                hAxis: { format: 'dd.MM.yyyy' },
+                vAxis: { minValue: 0 },
+                legend: 'none'
+            };
+
+            const chart = new google.visualization.ColumnChart(document.getElementById(containerId));
+            chart.draw(chartData, options);
+        }
+
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape');
+
+            const dishSelect = document.getElementById("dishSelect");
+            const dishName = dishSelect.options[dishSelect.selectedIndex].text;
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+
+            const title = `Statistics for dish: ${dishName}`;
+            let subtitle = "Full statistics";
+            if (startDate || endDate) {
+                const from = startDate || "beginning";
+                const to = endDate || "today";
+                subtitle = `From ${from} to ${to}`;
+            }
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.text(title, doc.internal.pageSize.getWidth() / 2, 20, { align: "center" });
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
+            doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 30, { align: "center" });
+
+            const chartContainer = document.getElementById("chartContainer");
+            const canvas = await html2canvas(chartContainer);
+            const imgData = canvas.toDataURL("image/png");
+
+            doc.addImage(imgData, 'PNG', 15, 40, 260, 70);
+            doc.save("dish-statistics.pdf");
+        }
+
+        google.charts.setOnLoadCallback(loadDishStats);
     </script>
 }

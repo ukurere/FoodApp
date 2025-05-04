@@ -4,32 +4,47 @@
     ViewData["Title"] = "All Users";
 }
 
-<h1>All Registered Users</h1>
+<div class="container my-5">
+    <div class="bg-white p-5 rounded-4 shadow-sm">
+        <h2 class="text-center mb-4" style="font-family: 'Amatic SC', cursive; font-size: 36px;">
+            All Registered Users
+        </h2>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>UserId</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>RegistrationDate</th>
-            <th>Role</th>
-        </tr>
-    </thead>
-    <tbody>
-    @for (int i = 0; i < Model.Count; i++)
-    {
-        var user = Model[i];
-        <tr>
-            <td>@user.UserId</td>
-            <td>@user.Username</td>
-            <td>@user.Email</td>
-            <td>@user.RegistrationDate</td>
-            <td>
-                @(user.Email == "yevgieniia.riabichenko@gmail.com" ? "Admin" : "User")
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
+        <div class="d-flex justify-content-end mb-3">
+            <a asp-action="Create" class="btn btn-primary-custom">Create New</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>PasswordHash</th>
+                        <th>RegistrationDate</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        var user = Model[i];
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@user.Username</td>
+                            <td>@user.Email</td>
+                            <td style="max-width: 250px; word-break: break-all;">@user.PasswordHash</td>
+                            <td>@user.RegistrationDate.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@user.UserId" class="text-danger me-2">Edit</a> |
+                                <a asp-action="Details" asp-route-id="@user.UserId" class="text-danger me-2">Details</a> |
+                                <a asp-action="Delete" asp-route-id="@user.UserId" class="text-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

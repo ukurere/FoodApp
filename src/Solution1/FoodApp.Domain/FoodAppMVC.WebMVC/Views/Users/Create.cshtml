@@ -1,43 +1,31 @@
 ﻿@model FoodApp.Domain.Entities.User
-
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create User";
 }
 
-<h1>Create</h1>
+<div class="container mt-5">
+    <div class="bg-white p-5 rounded-4 shadow-sm mx-auto" style="max-width: 900px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-center w-100" style="font-family: 'Amatic SC'; font-size: 2.5rem;">Create New User</h2>
+        </div>
 
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
         <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label"></label>
                 <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
                 <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="PasswordHash" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="PasswordHash" class="form-label"></label>
                 <input asp-for="PasswordHash" class="form-control" />
-                <span asp-validation-for="PasswordHash" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="text-center">
+                <input type="submit" value="Create" class="btn btn-success me-2" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

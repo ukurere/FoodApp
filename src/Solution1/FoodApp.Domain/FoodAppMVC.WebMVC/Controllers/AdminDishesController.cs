@@ -88,18 +88,6 @@ namespace FoodAppMVC.WebMVC.Controllers
             return RedirectToAction("Index", "AdminDishes");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var dish = await _context.Dishes.FindAsync(id);
-            if (dish == null) return NotFound();
-
-            _context.Dishes.Remove(dish);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Users");
-        }
-
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -109,35 +97,45 @@ namespace FoodAppMVC.WebMVC.Controllers
 
             if (dish == null) return NotFound();
 
-            var model = new AddDishViewModel
+            var model = new EditDishViewModel
             {
                 DishId = dish.DishId,
                 Name = dish.Name,
                 Type = dish.Type,
                 PreparationTimeMinutes = dish.PreparationTimeMinutes,
                 Recipe = dish.Recipe,
-                Calories = Convert.ToInt32(dish.Calories),
-                Proteins = Convert.ToInt32(dish.Proteins),
-                Fats = Convert.ToInt32(dish.Fats),
-                Carbohydrates = Convert.ToInt32(dish.Carbohydrates),
-                SelectedIngredientIds = dish.DishIngredients
-                    .Select(di => di.IngredientID)
-                    .ToList()
+                Calories = dish.Calories,
+                Proteins = dish.Proteins,
+                Fats = dish.Fats,
+                Carbohydrates = dish.Carbohydrates,
+                SelectedIngredientIds = dish.DishIngredients.Select(di => di.IngredientID).ToList(),
+                ExistingImagePath = dish.ImagePath
             };
 
-
-            ViewBag.Ingredients = new MultiSelectList(_context.Ingredients, "IngredientId", "Name", model.SelectedIngredientIds);
+            ViewBag.AllIngredients = _context.Ingredients.Select(i => new SelectListItem
+            {
+                Value = i.IngredientId.ToString(),
+                Text = i.Name,
+                Selected = model.SelectedIngredientIds.Contains(i.IngredientId)
+            }).ToList();
 
             return View(model);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, AddDishViewModel model)
+        public async Task<IActionResult> Edit(int id, EditDishViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Ingredients = new MultiSelectList(_context.Ingredients, "IngredientId", "Name", model.SelectedIngredientIds);
+                ViewBag.AllIngredients = _context.Ingredients.Select(i => new SelectListItem
+                {
+                    Value = i.IngredientId.ToString(),
+                    Text = i.Name,
+                    Selected = model.SelectedIngredientIds.Contains(i.IngredientId)
+                }).ToList();
+
                 return View(model);
             }
 
@@ -156,22 +154,52 @@ namespace FoodAppMVC.WebMVC.Controllers
             dish.Fats = model.Fats;
             dish.Carbohydrates = model.Carbohydrates;
 
-            // Replace ingredients
+            // Обробка зображення
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "images");
+                Directory.CreateDirectory(uploadsFolder);
+                var uniqueFileName = Guid.NewGuid() + "_" + Path.GetFileName(model.ImageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await model.ImageFile.CopyToAsync(stream);
+                dish.ImagePath = "/images/" + uniqueFileName;
+            }
+
+            // Заміна інгредієнтів
             _context.DishIngredients.RemoveRange(dish.DishIngredients);
 
             if (model.SelectedIngredientIds != null)
             {
-                foreach (var ingredientId in model.SelectedIngredientIds)
+                foreach (var idIngr in model.SelectedIngredientIds)
                 {
                     _context.DishIngredients.Add(new DishIngredient
                     {
                         DishID = dish.DishId,
-                        IngredientID = ingredientId
+                        IngredientID = idIngr
                     });
                 }
             }
 
             await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var dish = await _context.Dishes
+                .Include(d => d.DishIngredients)
+                .FirstOrDefaultAsync(d => d.DishId == id);
+
+            if (dish == null) return NotFound();
+
+            _context.DishIngredients.RemoveRange(dish.DishIngredients);
+            _context.Dishes.Remove(dish);
+
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Index");
         }
 
