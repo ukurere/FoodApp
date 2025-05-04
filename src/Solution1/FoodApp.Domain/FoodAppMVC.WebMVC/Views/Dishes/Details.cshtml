@@ -32,9 +32,19 @@
                     <ul>
                         @foreach (var di in Model.DishIngredients)
                         {
-                            <li>@di.Ingredient.Name @((di.Quantity > 0) ? $"({di.Quantity})" : "")</li>
+                            <li>
+                                @if (di.Quantity > 0)
+                                {
+                                    @($"{di.Quantity} {di.CntIngredient} {di.Ingredient.Name}")
+                                }
+                                else
+                                {
+                                    @di.Ingredient.Name
+                                }
+                            </li>
                         }
                     </ul>
+
                 </div>
                 <div class="placeholder-diagram">Nutrition chart coming soon</div>
             </div>
