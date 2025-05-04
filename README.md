@@ -1,4 +1,4 @@
-# Healthy Harmony — Full Project Documentation
+# Healthy Harmony
 
 ## 1. Project Overview
 
